@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use badminton_gamegen::Session;
+use badminton_gamegen::{GenStrategy, Session};
 
 const TEST_GAMES: [usize; 5] = [100, 80, 60, 40, 20];
 const TRIALS: usize = 10;
 
 fn create_session() -> Session {
     Session {
+        gen_strategy: GenStrategy::SHUFFLED,
         player_names: vec![
             "A".to_string(),
             "B".to_string(),
