@@ -3,7 +3,7 @@ use itertools::Itertools;
 use rand::thread_rng;
 use rand::seq::SliceRandom;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Game {
     pub team_a: Vec<usize>,
     pub team_b: Vec<usize>
@@ -21,13 +21,13 @@ impl Game {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum GenStrategy {
     NORMAL = 0,
     SHUFFLED = 1
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Session {
     pub player_names: Vec<String>,
     pub games: Vec<Game>,
@@ -103,5 +103,9 @@ impl Session {
         });
 
         game_candidates.next()
+    }
+
+    pub fn format_game(&self, game: &Game) -> String {
+        game.pairs().map(|pair| pair.iter().map(|i| self.player_names.get(*i).expect("should have a player name for index")).join(" and ")).join(" vs. ")
     }
 }

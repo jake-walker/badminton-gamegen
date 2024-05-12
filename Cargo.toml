@@ -6,12 +6,18 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+getrandom = { version = "0.2.15", features = ["js"] }
 itertools = "0.12.1"
 rand = "0.8.5"
-yew = { version = "0.21.0", features = ["csr"] }
+sycamore = "0.9.0-beta.2"
+web-sys = { version = "0.3.69", features = ["InputEvent", "KeyboardEvent"] }
 
 [profile.release]
-lto = true
+# Do not perform backtrace for panic on release builds.
+panic = 'abort'
+# Perform optimizations on all codegen units.
 codegen-units = 1
-panic = "abort"
-opt-level = "z"
+# Optimize for size.
+opt-level = 'z'
+# Enable link time optimization.
+lto = true
