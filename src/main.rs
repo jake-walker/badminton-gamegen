@@ -66,11 +66,11 @@ fn App<G: Html>() -> View<G> {
     };
 
     view! {
-        main {
-            section {
-                h1 { "Badminton Game Generator" }
-            }
+        header {
+            h1 { "Badminton Game Generator" }
+        }
 
+        main {
             section {
                 ol {
                     Indexed(
@@ -86,6 +86,17 @@ fn App<G: Html>() -> View<G> {
 
             section {
                 Configuration {}
+            }
+        }
+
+        footer {
+            p {
+                small {
+                    "Made with ❤️ by "
+                    a(href="https://jakew.me") { "Jake" }
+                    " • "
+                    a(href="https://github.com/jake-walker/badminton-gamegen") { "Source Code" }
+                }
             }
         }
     }
