@@ -34,8 +34,7 @@ fn Configuration<G: Html>() -> View<G> {
     };
 
     view! {
-        h2 { "Config" }
-        h3 { "Players" }
+        h2 { "👥 Players" }
 
         ul {
             Indexed(
@@ -67,7 +66,7 @@ fn App<G: Html>() -> View<G> {
 
     view! {
         header {
-            h1 { "Badminton Game Generator" }
+            h1 { "🏸 Badminton Game Generator" }
         }
 
         main {
@@ -81,7 +80,7 @@ fn App<G: Html>() -> View<G> {
                     )
                 }
 
-                button(class="btn btn-primary", on:click=handle_add_games, disabled=player_count.get() < 4) { "Add 10 Games" }
+                button(class="btn btn-primary", on:click=handle_add_games, disabled=player_count.get() < 4) { "➕ Add 10 Games" }
             }
 
             section {
