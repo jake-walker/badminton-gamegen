@@ -38,16 +38,15 @@ fn Configuration<G: Html>() -> View<G> {
         h3 { "Players" }
 
         ul {
-            Keyed(
+            Indexed(
                 iterable=player_list,
                 view=|player_name| view! {
                     li { (player_name) }
-                },
-                key=|player_name| player_name.clone()
+                }
             )
         }
 
-        input(bind:value=input_value, on:keyup=handle_keyup)
+        input(bind:value=input_value, on:keyup=handle_keyup, placeholder="Name")
     }
 }
 
@@ -56,6 +55,7 @@ fn App<G: Html>() -> View<G> {
     let app_state = AppState::default();
     provide_context(app_state);
     let games_list = create_memo(move || app_state.session.get_clone().games);
+    let player_count = create_memo(move || app_state.session.get_clone().player_names.len());
 
     let handle_add_games = move |_| {
         app_state.session.update(|s| {
@@ -66,22 +66,25 @@ fn App<G: Html>() -> View<G> {
     };
 
     view! {
-        div(class="container") {
-            div(class="my-2") {
-                ul {
-                    Keyed(
+        main {
+            section {
+                h1 { "Badminton Game Generator" }
+            }
+
+            section {
+                ol {
+                    Indexed(
                         iterable=games_list,
                         view=move |game| view! {
                             li { (app_state.session.get_clone().format_game(&game)) }
-                        },
-                        key=|game| game.clone()
+                        }
                     )
                 }
 
-                button(class="btn btn-primary", on:click=handle_add_games) { "Add 10 Games" }
+                button(class="btn btn-primary", on:click=handle_add_games, disabled=player_count.get() < 4) { "Add 10 Games" }
             }
 
-            div(class="my-2") {
+            section {
                 Configuration {}
             }
         }
