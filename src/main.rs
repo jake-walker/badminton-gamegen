@@ -1,4 +1,4 @@
-use badminton_gamegen::Session;
+use badminton_gamegen::{Session, GenStrategy};
 use sycamore::prelude::*;
 use web_sys::KeyboardEvent;
 
@@ -66,6 +66,17 @@ fn Configuration<G: Html>() -> View<G> {
         })
     };
 
+    let handle_change_strategy = move |_| {
+        app_state.session.update(|s| {
+            s.gen_strategy = {
+                match s.gen_strategy {
+                    GenStrategy::NORMAL => GenStrategy::SHUFFLED,
+                    GenStrategy::SHUFFLED => GenStrategy::NORMAL
+                }
+            }
+        })
+    };
+
     view! {
         h2 { "🔧 Config" }
 
@@ -80,7 +91,10 @@ fn Configuration<G: Html>() -> View<G> {
                 a(href="#", on:click=handle_increase_team_size) { "(+)" } " "
                 a(href="#", on:click=handle_decrease_team_size) { "(-)" }
             }
-            li { "Generation Strategy: " (app_state.session.get_clone().gen_strategy.to_string()) }
+            li {
+                "Generation Strategy: " (app_state.session.get_clone().gen_strategy.to_string()) " "
+                a(href="#", on:click=handle_change_strategy) { "(change)" }
+            }
         }
 
         h2 { "👥 Players" }
