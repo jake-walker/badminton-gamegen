@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::fmt::Display;
 use itertools::Itertools;
 use rand::thread_rng;
 use rand::seq::SliceRandom;
@@ -27,16 +28,24 @@ pub enum GenStrategy {
     SHUFFLED = 1
 }
 
+impl Display for GenStrategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Session {
     pub player_names: Vec<String>,
     pub games: Vec<Game>,
-    pub gen_strategy: GenStrategy
+    pub gen_strategy: GenStrategy,
+    pub courts: usize,
+    pub team_size: usize
 }
 
 impl Session {
     pub fn new() -> Self {
-        Self { player_names: Vec::new(), games: Vec::new(), gen_strategy: GenStrategy::SHUFFLED }
+        Self { player_names: Vec::new(), games: Vec::new(), gen_strategy: GenStrategy::SHUFFLED, courts: 1, team_size: 2 }
     }
 
     pub fn add_game(&mut self, g: Game) {
@@ -80,7 +89,7 @@ impl Session {
             player_ids.shuffle(&mut thread_rng());
         }
 
-        let mut game_candidates = player_ids.into_iter().combinations(2).combinations(2).filter(|teams| {
+        let mut game_candidates = player_ids.into_iter().combinations(self.team_size).combinations(2).filter(|teams| {
             let mut counts = HashSet::new();
             let mut repeated = HashSet::new();
 

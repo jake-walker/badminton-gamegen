@@ -39,6 +39,14 @@ fn Configuration<G: Html>() -> View<G> {
     };
 
     view! {
+        h2 { "🔧 Config" }
+
+        ul {
+            li { "Courts: " (app_state.session.get_clone().courts) }
+            li { "Team Size: " (app_state.session.get_clone().team_size) }
+            li { "Generation Strategy: " (app_state.session.get_clone().gen_strategy.to_string()) }
+        }
+
         h2 { "👥 Players" }
 
         ul {
@@ -77,14 +85,17 @@ fn PlayerItem<G: Html>(props: PlayerItemProps) -> View<G> {
 fn App<G: Html>() -> View<G> {
     let app_state = AppState::default();
     provide_context(app_state);
+
+    let error_message: Signal<String> = create_signal("".into());
     let games_list = create_memo(move || app_state.session.get_clone().games);
-    let player_count = create_memo(move || app_state.session.get_clone().player_names.len());
 
     let handle_add_games = move |_| {
         app_state.session.update(|s| {
             for _ in 0..10 {
                 if let Some(game) = s.next_game() {
                     s.add_game(game)
+                } else {
+                    error_message.set("Could not generate the next game. Ensure you have enough players to fill an entire game.".into());
                 }
             }
         })
@@ -96,6 +107,12 @@ fn App<G: Html>() -> View<G> {
         }
 
         main {
+            (if error_message.get_clone() != "" {
+                view! {
+                    p(class="pico-color-red-500") { "Uh oh! " (error_message.get_clone()) }
+                }
+            } else { view! {} })
+
             section {
                 ol {
                     Indexed(
@@ -106,7 +123,7 @@ fn App<G: Html>() -> View<G> {
                     )
                 }
 
-                button(class="btn btn-primary", on:click=handle_add_games, disabled=player_count.get() < 4) { "➕ Add 10 Games" }
+                button(on:click=handle_add_games) { "➕ Add 10 Games" }
             }
 
             section {
