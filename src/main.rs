@@ -15,6 +15,11 @@ impl Default for AppState {
     }
 }
 
+#[derive(Props, Clone)]
+struct PlayerItemProps {
+    name: String
+}
+
 #[component]
 fn Configuration<G: Html>() -> View<G> {
     let app_state = use_context::<AppState>();
@@ -40,12 +45,31 @@ fn Configuration<G: Html>() -> View<G> {
             Indexed(
                 iterable=player_list,
                 view=|player_name| view! {
-                    li { (player_name) }
+                    PlayerItem(name=player_name)
                 }
             )
         }
 
         input(bind:value=input_value, on:keyup=handle_keyup, placeholder="Name")
+    }
+}
+
+#[component]
+fn PlayerItem<G: Html>(props: PlayerItemProps) -> View<G> {
+    let app_state = use_context::<AppState>();
+
+    let props_clone = props.clone();
+
+    let handle_remove_player = move |_| {
+        app_state.session.update(|session| session.remove_player(&props_clone.name));
+    };
+
+    view! {
+        li {
+            (props.name)
+            " "
+            a(href="#", on:click=handle_remove_player) { "(remove)" }
+        }
     }
 }
 
@@ -59,7 +83,9 @@ fn App<G: Html>() -> View<G> {
     let handle_add_games = move |_| {
         app_state.session.update(|s| {
             for _ in 0..10 {
-                s.add_game(s.next_game().expect("should be able to generate next game"))
+                if let Some(game) = s.next_game() {
+                    s.add_game(game)
+                }
             }
         })
     };

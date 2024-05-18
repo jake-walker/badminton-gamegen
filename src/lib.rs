@@ -43,6 +43,13 @@ impl Session {
         self.games.push(g)
     }
 
+    pub fn remove_player(&mut self, player: &str) {
+        if let Some(player_index) = self.player_names.iter().position(|x| *x == player) {
+            self.games = Vec::new();
+            self.player_names.remove(player_index);
+        }
+    }
+
     pub fn player_game_counts(&self) -> HashMap<usize, usize> {
         let mut counts = HashMap::new();
 
@@ -106,6 +113,7 @@ impl Session {
     }
 
     pub fn format_game(&self, game: &Game) -> String {
-        game.pairs().map(|pair| pair.iter().map(|i| self.player_names.get(*i).expect("should have a player name for index")).join(" and ")).join(" vs. ")
+        let default: &String = &"?".to_string();
+        game.pairs().map(|pair| pair.iter().map(|i| self.player_names.get(*i).unwrap_or_else(|| default)).join(" and ")).join(" vs. ")
     }
 }
