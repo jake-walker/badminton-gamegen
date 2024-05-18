@@ -40,29 +40,29 @@ fn Configuration<G: Html>() -> View<G> {
 
     let handle_increase_courts = move |_| {
         app_state.session.update(|s| {
-            // TODO: check bounds
-            s.courts += 1;
+            s.courts = s.courts.checked_add(1).unwrap_or(s.courts);
         })
     };
 
     let handle_decrease_courts = move |_| {
         app_state.session.update(|s| {
-            // TODO: check bounds
-            s.courts -= 1;
+            if s.courts >= 2 {
+                s.courts = s.courts.checked_sub(1).unwrap_or(s.courts);
+            }
         })
     };
 
     let handle_increase_team_size = move |_| {
         app_state.session.update(|s| {
-            // TODO: check bounds
-            s.team_size += 1;
+            s.team_size = s.team_size.checked_add(1).unwrap_or(s.team_size);
         })
     };
 
     let handle_decrease_team_size = move |_| {
         app_state.session.update(|s| {
-            // TODO: check bounds
-            s.team_size -= 1;
+            if s.team_size >= 2 {
+                s.team_size = s.team_size.checked_sub(1).unwrap_or(s.team_size);
+            }
         })
     };
 

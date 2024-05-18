@@ -89,8 +89,6 @@ impl Session {
             }
         };
 
-        web_sys::console::log_1(&format!("Excluding {:?} from next game", to_exclude).into());
-
         self.generate_game(to_exclude)
     }
 
