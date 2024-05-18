@@ -80,6 +80,21 @@ impl Session {
     }
 
     pub fn next_game(&self) -> Option<Game> {
+        // if there is more than 1 court, make sure the next game doesn't include the game for the previous court(s)
+        let to_exclude: Vec<usize> = {
+            if self.courts > 1 {
+                self.games.iter().rev().take(self.courts-1).flat_map(|game| game.players()).collect_vec()
+            } else {
+                Vec::new()
+            }
+        };
+
+        web_sys::console::log_1(&format!("Excluding {:?} from next game", to_exclude).into());
+
+        self.generate_game(to_exclude)
+    }
+
+    pub fn generate_game(&self, excluded_player_indexes: Vec<usize>) -> Option<Game> {
         let player_game_counts = self.player_game_counts();
         let pair_game_counts = self.pair_game_counts();
 
@@ -95,6 +110,10 @@ impl Session {
 
             for team in teams {
                 for player in team {
+                    if excluded_player_indexes.contains(player) {
+                        return false;
+                    }
+
                     let count = counts.insert(player);
                     if !count {
                         repeated.insert(*player);
