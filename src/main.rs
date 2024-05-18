@@ -38,12 +38,48 @@ fn Configuration<G: Html>() -> View<G> {
         }
     };
 
+    let handle_increase_courts = move |_| {
+        app_state.session.update(|s| {
+            // TODO: check bounds
+            s.courts += 1;
+        })
+    };
+
+    let handle_decrease_courts = move |_| {
+        app_state.session.update(|s| {
+            // TODO: check bounds
+            s.courts -= 1;
+        })
+    };
+
+    let handle_increase_team_size = move |_| {
+        app_state.session.update(|s| {
+            // TODO: check bounds
+            s.team_size += 1;
+        })
+    };
+
+    let handle_decrease_team_size = move |_| {
+        app_state.session.update(|s| {
+            // TODO: check bounds
+            s.team_size -= 1;
+        })
+    };
+
     view! {
         h2 { "🔧 Config" }
 
         ul {
-            li { "Courts: " (app_state.session.get_clone().courts) }
-            li { "Team Size: " (app_state.session.get_clone().team_size) }
+            li {
+                "Courts: " (app_state.session.get_clone().courts) " "
+                a(href="#", on:click=handle_increase_courts) { "(+)" } " "
+                a(href="#", on:click=handle_decrease_courts) { "(-)" }
+            }
+            li {
+                "Team Size: " (app_state.session.get_clone().team_size) " "
+                a(href="#", on:click=handle_increase_team_size) { "(+)" } " "
+                a(href="#", on:click=handle_decrease_team_size) { "(-)" }
+            }
             li { "Generation Strategy: " (app_state.session.get_clone().gen_strategy.to_string()) }
         }
 
