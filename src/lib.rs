@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::fmt::Display;
 use itertools::Itertools;
 use rand::thread_rng;
 use rand::seq::SliceRandom;
@@ -27,16 +28,24 @@ pub enum GenStrategy {
     SHUFFLED = 1
 }
 
+impl Display for GenStrategy {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Session {
     pub player_names: Vec<String>,
     pub games: Vec<Game>,
-    pub gen_strategy: GenStrategy
+    pub gen_strategy: GenStrategy,
+    pub courts: usize,
+    pub team_size: usize
 }
 
 impl Session {
     pub fn new() -> Self {
-        Self { player_names: Vec::new(), games: Vec::new(), gen_strategy: GenStrategy::SHUFFLED }
+        Self { player_names: Vec::new(), games: Vec::new(), gen_strategy: GenStrategy::SHUFFLED, courts: 1, team_size: 2 }
     }
 
     pub fn add_game(&mut self, g: Game) {
@@ -71,6 +80,19 @@ impl Session {
     }
 
     pub fn next_game(&self) -> Option<Game> {
+        // if there is more than 1 court, make sure the next game doesn't include the game for the previous court(s)
+        let to_exclude: Vec<usize> = {
+            if self.courts > 1 {
+                self.games.iter().rev().take(self.courts-1).flat_map(|game| game.players()).collect_vec()
+            } else {
+                Vec::new()
+            }
+        };
+
+        self.generate_game(to_exclude)
+    }
+
+    pub fn generate_game(&self, excluded_player_indexes: Vec<usize>) -> Option<Game> {
         let player_game_counts = self.player_game_counts();
         let pair_game_counts = self.pair_game_counts();
 
@@ -80,12 +102,16 @@ impl Session {
             player_ids.shuffle(&mut thread_rng());
         }
 
-        let mut game_candidates = player_ids.into_iter().combinations(2).combinations(2).filter(|teams| {
+        let mut game_candidates = player_ids.into_iter().combinations(self.team_size).combinations(2).filter(|teams| {
             let mut counts = HashSet::new();
             let mut repeated = HashSet::new();
 
             for team in teams {
                 for player in team {
+                    if excluded_player_indexes.contains(player) {
+                        return false;
+                    }
+
                     let count = counts.insert(player);
                     if !count {
                         repeated.insert(*player);
