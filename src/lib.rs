@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
+use std::ops::Rem;
 use itertools::Itertools;
 use rand::thread_rng;
 use rand::seq::SliceRandom;
@@ -80,10 +81,13 @@ impl Session {
     }
 
     pub fn next_game(&self) -> Option<Game> {
+        let games_to_exclude = self.games.len().rem(self.courts);
+
         // if there is more than 1 court, make sure the next game doesn't include the game for the previous court(s)
+        // unless this is the first of the courts, then don't exclude any players
         let to_exclude: Vec<usize> = {
-            if self.courts > 1 {
-                self.games.iter().rev().take(self.courts-1).flat_map(|game| game.players()).collect_vec()
+            if self.courts > 1 && games_to_exclude > 0 {
+                self.games.iter().rev().take(games_to_exclude).flat_map(|game| game.players()).collect_vec()
             } else {
                 Vec::new()
             }
