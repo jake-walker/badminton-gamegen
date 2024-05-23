@@ -1,8 +1,5 @@
 use itertools::Itertools;
-use rand::seq::SliceRandom;
-use rand::thread_rng;
 use std::collections::{HashMap, HashSet};
-use std::fmt::Display;
 use std::ops::Rem;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -25,27 +22,11 @@ impl Game {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
-/// Strategy for generating games
-pub enum GenStrategy {
-    /// No shuffling and (probably) deterministic
-    NORMAL = 0,
-    /// Players are shuffled before generating games
-    SHUFFLED = 1,
-}
-
-impl Display for GenStrategy {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
 #[derive(Debug, Clone)]
 /// A session where multiple games are played with the same group of people
 pub struct Session {
     pub player_names: Vec<String>,
     pub games: Vec<Game>,
-    pub gen_strategy: GenStrategy,
     /// The number of courts for the session
     pub courts: usize,
     /// The size of the team on one side of the court (i.e. 1 for singles, 2 for doubles)
@@ -57,7 +38,6 @@ impl Default for Session {
         Self {
             player_names: Vec::new(),
             games: Vec::new(),
-            gen_strategy: GenStrategy::SHUFFLED,
             courts: 1,
             team_size: 2,
         }
@@ -131,18 +111,13 @@ impl Session {
         let pair_game_counts = self.pair_game_counts();
 
         // get player indexes and remove those which are in the exclusion list
-        let mut player_ids = self
+        let player_ids = self
             .player_names
             .iter()
             .enumerate()
             .map(|(index, _)| index)
             .filter(|i| !excluded_player_indexes.contains(i))
             .collect_vec();
-
-        // optionally shuffle the player indexes to give games a more random feel
-        if self.gen_strategy == GenStrategy::SHUFFLED {
-            player_ids.shuffle(&mut thread_rng());
-        }
 
         // calculate potential games for the list of player ids
         let mut game_candidates = player_ids
@@ -226,7 +201,7 @@ impl Session {
 mod tests {
     use std::collections::HashSet;
 
-    use crate::{GenStrategy, Session};
+    use crate::Session;
 
     const TEST_GAMES: usize = 20;
 
@@ -244,7 +219,6 @@ mod tests {
                 "i".into(),
             ]),
             games: Vec::new(),
-            gen_strategy: GenStrategy::NORMAL,
             courts: 1,
             team_size: 2,
         }
@@ -273,7 +247,6 @@ mod tests {
     #[test]
     fn shuffled_game_has_correct_number_of_pairs() {
         let mut session = create_test_session();
-        session.gen_strategy = GenStrategy::SHUFFLED;
         generate_test_games(&mut session);
 
         let pairs = session
