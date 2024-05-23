@@ -1,14 +1,14 @@
+use itertools::Itertools;
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Display;
 use std::ops::Rem;
-use itertools::Itertools;
-use rand::thread_rng;
-use rand::seq::SliceRandom;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Game {
     pub team_a: Vec<usize>,
-    pub team_b: Vec<usize>
+    pub team_b: Vec<usize>,
 }
 
 impl Game {
@@ -31,7 +31,7 @@ pub enum GenStrategy {
     /// No shuffling and (probably) deterministic
     NORMAL = 0,
     /// Players are shuffled before generating games
-    SHUFFLED = 1
+    SHUFFLED = 1,
 }
 
 impl Display for GenStrategy {
@@ -49,14 +49,22 @@ pub struct Session {
     /// The number of courts for the session
     pub courts: usize,
     /// The size of the team on one side of the court (i.e. 1 for singles, 2 for doubles)
-    pub team_size: usize
+    pub team_size: usize,
+}
+
+impl Default for Session {
+    fn default() -> Self {
+        Self {
+            player_names: Vec::new(),
+            games: Vec::new(),
+            gen_strategy: GenStrategy::SHUFFLED,
+            courts: 1,
+            team_size: 2,
+        }
+    }
 }
 
 impl Session {
-    pub fn new() -> Self {
-        Self { player_names: Vec::new(), games: Vec::new(), gen_strategy: GenStrategy::SHUFFLED, courts: 1, team_size: 2 }
-    }
-
     pub fn add_game(&mut self, g: Game) {
         self.games.push(g)
     }
@@ -75,7 +83,7 @@ impl Session {
     pub fn player_game_counts(&self) -> HashMap<usize, usize> {
         let mut counts = HashMap::new();
 
-        for player in self.games.iter().map(|g| g.players()).flatten() {
+        for player in self.games.iter().flat_map(|g| g.players()) {
             *counts.entry(player).or_insert(0) += 1;
         }
 
@@ -86,7 +94,7 @@ impl Session {
     pub fn pair_game_counts(&self) -> HashMap<&Vec<usize>, usize> {
         let mut counts = HashMap::new();
 
-        for pair in self.games.iter().map(|g| g.pairs()).flatten() {
+        for pair in self.games.iter().flat_map(|g| g.pairs()) {
             *counts.entry(pair).or_insert(0) += 1;
         }
 
@@ -102,7 +110,12 @@ impl Session {
             // if there is more than 1 court and it is not the first court
             if self.courts > 1 && court_number > 0 {
                 // get the players from the first courts and make sure they are not included in the next game
-                self.games.iter().rev().take(court_number).flat_map(|game| game.players()).collect_vec()
+                self.games
+                    .iter()
+                    .rev()
+                    .take(court_number)
+                    .flat_map(|game| game.players())
+                    .collect_vec()
             } else {
                 Vec::new()
             }
@@ -118,7 +131,10 @@ impl Session {
         let pair_game_counts = self.pair_game_counts();
 
         // get player indexes and remove those which are in the exclusion list
-        let mut player_ids = self.player_names.iter().enumerate()
+        let mut player_ids = self
+            .player_names
+            .iter()
+            .enumerate()
             .map(|(index, _)| index)
             .filter(|i| !excluded_player_indexes.contains(i))
             .collect_vec();
@@ -129,7 +145,8 @@ impl Session {
         }
 
         // calculate potential games for the list of player ids
-        let mut game_candidates = player_ids.into_iter()
+        let mut game_candidates = player_ids
+            .into_iter()
             // get team combinations (i.e. one side of a court)
             .combinations(self.team_size)
             // get game combinations (i.e. combinations of two teams)
@@ -149,17 +166,31 @@ impl Session {
                     }
                 }
 
-                repeated.len() == 0
+                repeated.is_empty()
             })
             // sort games to find the best - prioritise games where players have played the least and where the pairs are new
             .sorted_by(|a, b| {
                 // for both games, sum the number of games each player has played
-                let a_game_count: usize = a.iter().flatten().map(|player| player_game_counts.get(player).unwrap_or_else(|| &0)).sum();
-                let b_game_count: usize = b.iter().flatten().map(|player| player_game_counts.get(player).unwrap_or_else(|| &0)).sum();
+                let a_game_count: usize = a
+                    .iter()
+                    .flatten()
+                    .map(|player| player_game_counts.get(player).unwrap_or(&0))
+                    .sum();
+                let b_game_count: usize = b
+                    .iter()
+                    .flatten()
+                    .map(|player| player_game_counts.get(player).unwrap_or(&0))
+                    .sum();
 
                 // for both games, sum the number of games each team has played
-                let a_team_counts: usize = a.iter().map(|pair| pair_game_counts.get(pair).unwrap_or_else(|| &0)).sum();
-                let b_team_counts: usize = b.iter().map(|pair| pair_game_counts.get(pair).unwrap_or_else(|| &0)).sum();
+                let a_team_counts: usize = a
+                    .iter()
+                    .map(|pair| pair_game_counts.get(pair).unwrap_or(&0))
+                    .sum();
+                let b_team_counts: usize = b
+                    .iter()
+                    .map(|pair| pair_game_counts.get(pair).unwrap_or(&0))
+                    .sum();
 
                 // total the number of games each player and team has played
                 let a_total = a_game_count + a_team_counts;
@@ -169,8 +200,9 @@ impl Session {
                 a_total.cmp(&b_total)
             })
             // convert the list into a game
-            .map(|teams| {
-                Game { team_a: teams[0].clone(), team_b: teams[1].clone() }
+            .map(|teams| Game {
+                team_a: teams[0].clone(),
+                team_b: teams[1].clone(),
             });
 
         // return the first game (i.e. the best)
@@ -180,6 +212,12 @@ impl Session {
     /// Convert a game struct to a string with player names
     pub fn format_game(&self, game: &Game) -> String {
         let default: &String = &"?".to_string();
-        game.pairs().map(|pair| pair.iter().map(|i| self.player_names.get(*i).unwrap_or_else(|| default)).join(" and ")).join(" vs. ")
+        game.pairs()
+            .map(|pair| {
+                pair.iter()
+                    .map(|i| self.player_names.get(*i).unwrap_or(default))
+                    .join(" and ")
+            })
+            .join(" vs. ")
     }
 }

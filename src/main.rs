@@ -1,23 +1,23 @@
-use badminton_gamegen::{Session, GenStrategy};
+use badminton_gamegen::{GenStrategy, Session};
 use sycamore::prelude::*;
 use web_sys::KeyboardEvent;
 
 #[derive(Debug, Clone, Copy)]
 struct AppState {
-    pub session: Signal<Session>
+    pub session: Signal<Session>,
 }
 
 impl Default for AppState {
     fn default() -> Self {
         AppState {
-            session: create_signal(Session::new())
+            session: create_signal(Session::default()),
         }
     }
 }
 
 #[derive(Props, Clone)]
 struct PlayerItemProps {
-    name: String
+    name: String,
 }
 
 #[component]
@@ -31,7 +31,9 @@ fn Configuration<G: Html>() -> View<G> {
             let name = input_value.with(|name| name.trim().to_string());
 
             if !name.is_empty() {
-                app_state.session.update(|session| session.player_names.push(name));
+                app_state
+                    .session
+                    .update(|session| session.player_names.push(name));
                 // Reset input field.
                 input_value.set("".to_string());
             }
@@ -71,7 +73,7 @@ fn Configuration<G: Html>() -> View<G> {
             s.gen_strategy = {
                 match s.gen_strategy {
                     GenStrategy::NORMAL => GenStrategy::SHUFFLED,
-                    GenStrategy::SHUFFLED => GenStrategy::NORMAL
+                    GenStrategy::SHUFFLED => GenStrategy::NORMAL,
                 }
             }
         })
@@ -119,7 +121,9 @@ fn PlayerItem<G: Html>(props: PlayerItemProps) -> View<G> {
     let props_clone = props.clone();
 
     let handle_remove_player = move |_| {
-        app_state.session.update(|session| session.remove_player(&props_clone.name));
+        app_state
+            .session
+            .update(|session| session.remove_player(&props_clone.name));
     };
 
     view! {

@@ -14,15 +14,19 @@ fn create_session() -> Session {
             "C".to_string(),
             "D".to_string(),
             "E".to_string(),
-            "F".to_string()
+            "F".to_string(),
         ],
-        games: Vec::new()
+        games: Vec::new(),
+        courts: 1,
+        team_size: 2,
     }
 }
 
 fn add_games(session: &mut Session, n: usize) {
     for _ in 0..n {
-        let g = session.next_game().expect("should be able to generate next game");
+        let g = session
+            .next_game()
+            .expect("should be able to generate next game");
         session.add_game(g);
     }
 }
@@ -41,7 +45,7 @@ fn main() {
 
             // get counts for the number of games each player has been in
             let mut counts = HashMap::new();
-            for player in s.games.iter().map(|g| g.players()).flatten() {
+            for player in s.games.iter().flat_map(|g| g.players()) {
                 *counts.entry(player).or_insert(0) += 1;
             }
 
@@ -57,7 +61,13 @@ fn main() {
             }
         }
 
-        println!("With {} matches, each player will play between {} and {} matches (+/- {})", test_games, min.unwrap(), max.unwrap(), max.unwrap() - min.unwrap());
+        println!(
+            "With {} matches, each player will play between {} and {} matches (+/- {})",
+            test_games,
+            min.unwrap(),
+            max.unwrap(),
+            max.unwrap() - min.unwrap()
+        );
     }
 
     println!("== Similar pairings ==");
@@ -98,7 +108,10 @@ fn main() {
                 }
 
                 if counts.len() != s.player_names.len() - 1 {
-                    println!("With {} matches, player {} does not play with every other player!", test_games, i);
+                    println!(
+                        "With {} matches, player {} does not play with every other player!",
+                        test_games, i
+                    );
                 }
             }
         }
