@@ -221,3 +221,67 @@ impl Session {
             .join(" vs. ")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashSet;
+
+    use crate::{GenStrategy, Session};
+
+    const TEST_GAMES: usize = 20;
+
+    fn create_test_session() -> Session {
+        Session {
+            player_names: Vec::from([
+                "a".into(),
+                "b".into(),
+                "c".into(),
+                "d".into(),
+                "e".into(),
+                "f".into(),
+                "g".into(),
+                "h".into(),
+                "i".into(),
+            ]),
+            games: Vec::new(),
+            gen_strategy: GenStrategy::NORMAL,
+            courts: 1,
+            team_size: 2,
+        }
+    }
+
+    fn generate_test_games(s: &mut Session) {
+        for _ in 0..TEST_GAMES {
+            s.add_game(s.next_game().unwrap())
+        }
+    }
+
+    #[test]
+    fn normal_game_has_correct_number_of_pairs() {
+        let mut session = create_test_session();
+        generate_test_games(&mut session);
+
+        let pairs = session
+            .games
+            .iter()
+            .flat_map(|g| g.pairs())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(pairs.len(), 36);
+    }
+
+    #[test]
+    fn shuffled_game_has_correct_number_of_pairs() {
+        let mut session = create_test_session();
+        session.gen_strategy = GenStrategy::SHUFFLED;
+        generate_test_games(&mut session);
+
+        let pairs = session
+            .games
+            .iter()
+            .flat_map(|g| g.pairs())
+            .collect::<HashSet<_>>();
+
+        assert_eq!(pairs.len(), 36);
+    }
+}

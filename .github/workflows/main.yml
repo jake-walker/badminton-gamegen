@@ -24,6 +24,8 @@ jobs:
       run: cargo install --locked trunk
     - name: Build
       run: trunk build --verbose
+    - name: Test
+      run: cargo test
 
 
   deploy:
