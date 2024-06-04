@@ -1,6 +1,8 @@
 use badminton_gamegen::Session;
 use gloo_storage::{LocalStorage, Storage};
+use itertools::Itertools;
 use sycamore::prelude::*;
+use wasm_bindgen_futures::spawn_local;
 use web_sys::KeyboardEvent;
 
 #[derive(Debug, Clone, Copy)]
@@ -21,6 +23,28 @@ impl Default for AppState {
 #[derive(Props, Clone)]
 struct PlayerItemProps {
     name: String,
+}
+
+#[cfg(web_sys_unstable_apis)]
+fn copy_to_clipboard(text: String) {
+    spawn_local(async move {
+        let window = web_sys::window().unwrap();
+        let nav = window.navigator().clipboard();
+        match nav {
+            Some(a) => {
+                let p = a.write_text(&text);
+                let _result = wasm_bindgen_futures::JsFuture::from(p)
+                    .await
+                    .expect("clipboard populated");
+                window.alert_with_message("Copied to clipboard :)").unwrap();
+            }
+            None => {
+                window
+                    .alert_with_message("Uh oh! Can't copy to the clipboard")
+                    .unwrap();
+            }
+        }
+    });
 }
 
 #[component]
@@ -206,6 +230,17 @@ fn App<G: Html>() -> View<G> {
         })
     };
 
+    let handle_copy = move |_| {
+        let session = app_state.session.get_clone();
+        let games = session
+            .games
+            .iter()
+            .enumerate()
+            .map(|(i, g)| format!("{}. {}", i + 1, session.format_game(g)))
+            .join("\n");
+        copy_to_clipboard(games);
+    };
+
     view! {
         header {
             h1 { "🏸 Badminton Game Generator" }
@@ -231,6 +266,8 @@ fn App<G: Html>() -> View<G> {
                 button(on:click=handle_add_games) { "➕ Add 10 Games" }
                 " "
                 button(on:click=handle_add_game) { "👉 Next Game" }
+                " "
+                button(on:click=handle_copy) { "📋 Copy (beta)" }
             }
 
             section {
