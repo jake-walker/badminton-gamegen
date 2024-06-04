@@ -1,16 +1,19 @@
 use badminton_gamegen::Session;
+use gloo_storage::{LocalStorage, Storage};
 use sycamore::prelude::*;
 use web_sys::KeyboardEvent;
 
 #[derive(Debug, Clone, Copy)]
 struct AppState {
     pub session: Signal<Session>,
+    pub player_history: Signal<Vec<String>>,
 }
 
 impl Default for AppState {
     fn default() -> Self {
         AppState {
             session: create_signal(Session::default()),
+            player_history: create_signal(Vec::new()),
         }
     }
 }
@@ -33,7 +36,14 @@ fn Configuration<G: Html>() -> View<G> {
             if !name.is_empty() {
                 app_state
                     .session
-                    .update(|session| session.player_names.push(name));
+                    .update(|session| session.player_names.push(name.clone()));
+
+                app_state.player_history.update(|v| {
+                    if !v.contains(&name) {
+                        v.push(name)
+                    }
+                });
+
                 // Reset input field.
                 input_value.set("".to_string());
             }
@@ -96,6 +106,15 @@ fn Configuration<G: Html>() -> View<G> {
         }
 
         input(bind:value=input_value, on:keyup=handle_keyup, placeholder="Name")
+
+        ul {
+            Indexed(
+                iterable=*app_state.player_history,
+                view=|player_name| view! {
+                    SavedPlayerItem(name=player_name)
+                }
+            )
+        }
     }
 }
 
@@ -121,9 +140,46 @@ fn PlayerItem<G: Html>(props: PlayerItemProps) -> View<G> {
 }
 
 #[component]
+fn SavedPlayerItem<G: Html>(props: PlayerItemProps) -> View<G> {
+    let app_state = use_context::<AppState>();
+
+    let props_clone = props.clone();
+
+    let handle_add_player = move |_| {
+        app_state
+            .session
+            .update(|session| session.player_names.push(props_clone.name.clone()));
+    };
+
+    view! {
+        li {
+            (props.name)
+            " "
+            a(href="#", on:click=handle_add_player) { "(add)" }
+        }
+    }
+}
+
+#[component]
 fn App<G: Html>() -> View<G> {
-    let app_state = AppState::default();
+    let app_state = {
+        if let Ok(player_history) = LocalStorage::get("player_history") {
+            AppState {
+                player_history: create_signal(player_history),
+                ..Default::default()
+            }
+        } else {
+            AppState::default()
+        }
+    };
+
     provide_context(app_state);
+
+    create_effect(move || {
+        app_state.player_history.with(|player_history| {
+            LocalStorage::set("player_history", player_history.clone()).unwrap()
+        })
+    });
 
     let error_message: Signal<String> = create_signal("".into());
     let games_list = create_memo(move || app_state.session.get_clone().games);
