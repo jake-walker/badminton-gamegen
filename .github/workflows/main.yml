@@ -23,7 +23,7 @@ jobs:
     - name: Install trunk
       run: cargo install --locked trunk
     - name: Build
-      run: trunk build --verbose
+      run: RUSTFLAGS=--cfg=web_sys_unstable_apis trunk build --verbose
     - name: Test
       run: cargo test
 
@@ -43,7 +43,7 @@ jobs:
     - name: Install trunk
       run: cargo install --locked trunk
     - name: Build
-      run: trunk build --release
+      run: RUSTFLAGS=--cfg=web_sys_unstable_apis trunk build --release
     - name: Deploy
       uses: cloudflare/wrangler-action@v3
       with:
