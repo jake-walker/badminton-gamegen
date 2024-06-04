@@ -231,21 +231,7 @@ mod tests {
     }
 
     #[test]
-    fn normal_game_has_correct_number_of_pairs() {
-        let mut session = create_test_session();
-        generate_test_games(&mut session);
-
-        let pairs = session
-            .games
-            .iter()
-            .flat_map(|g| g.pairs())
-            .collect::<HashSet<_>>();
-
-        assert_eq!(pairs.len(), 36);
-    }
-
-    #[test]
-    fn shuffled_game_has_correct_number_of_pairs() {
+    fn game_has_correct_number_of_pairs() {
         let mut session = create_test_session();
         generate_test_games(&mut session);
 
