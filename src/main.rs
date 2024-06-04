@@ -196,6 +196,16 @@ fn App<G: Html>() -> View<G> {
         })
     };
 
+    let handle_add_game = move |_| {
+        app_state.session.update(|s| {
+            if let Some(game) = s.next_game() {
+                s.add_game(game)
+            } else {
+                error_message.set("Could not generate the next game. Ensure you have enough players to fill an entire game.".into());
+            }
+        })
+    };
+
     view! {
         header {
             h1 { "🏸 Badminton Game Generator" }
@@ -219,6 +229,8 @@ fn App<G: Html>() -> View<G> {
                 }
 
                 button(on:click=handle_add_games) { "➕ Add 10 Games" }
+                " "
+                button(on:click=handle_add_game) { "👉 Next Game" }
             }
 
             section {
