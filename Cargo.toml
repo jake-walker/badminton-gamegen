@@ -2,6 +2,7 @@
 name = "badminton-gamegen"
 version = "0.1.0"
 edition = "2021"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -23,3 +24,6 @@ codegen-units = 1
 opt-level = 'z'
 # Enable link time optimization.
 lto = true
+
+[build-dependencies]
+vergen = { version = "8.3.1", features = ["gitoxide", "build", "git"] }

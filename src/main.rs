@@ -281,6 +281,8 @@ fn App<G: Html>() -> View<G> {
                     "Made with ❤️ by "
                     a(href="https://jakew.me") { "Jake" }
                     " • "
+                    (format!("version {} ({}), built {}", env!("VERGEN_GIT_SHA"), env!("VERGEN_GIT_COMMIT_MESSAGE"), env!("VERGEN_BUILD_DATE")))
+                    " • "
                     a(href="https://github.com/jake-walker/badminton-gamegen") { "Source Code" }
                 }
             }
