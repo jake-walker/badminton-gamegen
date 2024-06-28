@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import { type Session } from "generator"
+import { atomWithStorage } from "jotai/utils";
 
 type GeneratorConfiguration = {
   courts: number,
@@ -8,3 +9,4 @@ type GeneratorConfiguration = {
 
 export const session = atom<Session>({ players: [], matches: [] });
 export const configuration = atom<GeneratorConfiguration>({ courts: 1, teamSize: 2 });
+export const playerHistory = atomWithStorage<string[]>("player_history", []);

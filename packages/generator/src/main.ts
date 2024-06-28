@@ -45,6 +45,13 @@ export function addPlayer(session: Session, name: string): Session {
   };
 }
 
+export function removePlayer(session: Session, playerId: string): Session {
+  return {
+    matches: session.matches,
+    players: session.players.filter((p) => p.id !== playerId)
+  }
+}
+
 export function getPlayerById(session: Session, id: string): Player | undefined {
   return session.players.find((p) => p.id == id);
 }

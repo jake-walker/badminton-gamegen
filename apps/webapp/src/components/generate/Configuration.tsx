@@ -3,15 +3,15 @@
 import React from "react";
 
 import { Alert, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select } from "@mui/material";
-import { session as sessionAtom, configuration as configurationAtom } from "../../sessionAtoms";
+import * as atoms from "../../sessionAtoms";
 import { useAtom } from "jotai";
 import AddIcon from '@mui/icons-material/Add';
 import * as generation from "generator";
 
 export default function GeneratorConfiguration() {
-  const [generatorState, setGeneratorState] = useAtom(sessionAtom);
-  const [configuration, setConfiguration] = useAtom(configurationAtom);
-
+  const [generatorState, setGeneratorState] = useAtom(atoms.session);
+  const [configuration, setConfiguration] = useAtom(atoms.configuration);
+  const [playerHistory, setPlayerHistory] = useAtom(atoms.playerHistory)
   const [newPlayer, setNewPlayer] = React.useState<string>("");
 
   const requiredPlayers = (configuration.courts * (configuration.teamSize * 2)) - generatorState.players.length;
@@ -19,6 +19,7 @@ export default function GeneratorConfiguration() {
   const addPlayer = () => {
     if (newPlayer.trim() == "") return;
     setGeneratorState((s) => generation.addPlayer(s, newPlayer));
+    if (!playerHistory.includes(newPlayer)) setPlayerHistory((h) => [...h, newPlayer]);
     setNewPlayer("");
   };
 
