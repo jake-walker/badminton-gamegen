@@ -20,33 +20,45 @@ export default function Generate() {
     setCurrentTab(newValue);
   }
 
-  const addGame = () => {
-    const match = generation.nextGame(generatorState, configuration.courts);
+  const addGame = (n: number): React.MouseEventHandler => () => {
+    for (let i = 0; i < n; i++) {
+      const match = generation.nextGame(generatorState, configuration.courts);
 
-    if (match === null) {
-      setErrorMessage("Could not generate the next game. Please make sure you have enough players to fill a game.");
-      return
-    };
+      if (match === null) {
+        setErrorMessage("Could not generate the next game. Please make sure you have enough players to fill a game.");
+        return
+      };
 
-    setErrorMessage(null);
+      setErrorMessage(null);
 
-    setGeneratorState((s) => ({
-      ...s,
-      matches: [...s.matches, match],
-    }))
+      setGeneratorState((s) => ({
+        ...s,
+        matches: [...s.matches, match],
+      }));
+    }
+  }
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(generatorState.matches.map((match, i) => `_${i+1} (c${match.court+1}):_ ${generation.formatMatch(match)}`).join("\n"));
+    } catch (err) {
+      alert("Failed to write to clipboard!");
+    }
   }
 
   return (
     <TabContext value={currentTab}>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <TabList onChange={handleTabChange} centered>
-          <Tab label="Games" value="games" />
+          <Tab label="Matches" value="matches" />
           <Tab label="Config" value="config" />
         </TabList>
       </Box>
 
-      <TabPanel value="games">
-        <Button onClick={addGame}>Add game</Button>
+      <TabPanel value="matches">
+        <Button onClick={addGame(1)}>Add matches</Button>
+        <Button onClick={addGame(10)}>Add 10 matches</Button>
+        <Button onClick={copyToClipboard}>Copy to clipboard</Button>
 
         {errorMessage && <Alert severity="error" sx={{ my: 2 }}>
           Whoops! {errorMessage}
