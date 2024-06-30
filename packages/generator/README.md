@@ -1,0 +1,3 @@
+# generator
+
+Run the benchmark with `bun run benchmark` to get statistics on the algorithm, for example, the number of times each player is in a match, how many times each player is paired together, etc...
