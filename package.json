@@ -2,5 +2,5 @@
   "name": "badminton-games",
   "license": "MIT",
   "version": "2.0.0",
-  "workspaces": ["packages/*", "apps/*"]
+  "workspaces": ["packages/*", "app"]
 }
