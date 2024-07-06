@@ -1,10 +1,11 @@
 "use server";
 
 import db from "../../../../db/db";
-import { group } from "../../../../db/schema";
-import { eq } from "drizzle-orm";
+import { group, match as matchModel, matchPlayer as matchPlayerModel, player as playerModel } from "../../../../db/schema";
+import { desc, eq } from "drizzle-orm";
 import { Alert, Box, Button, Card, CardActions, CardContent, Divider, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
+import Link from "next/link";
 
 interface ViewGroupProps {
   params: {
@@ -28,13 +29,43 @@ async function getData(id: string) {
     where: eq(group.id, id),
     with: {
       players: true,
-      matches: true
+      matches: {
+        limit: 6,
+        orderBy: desc(matchModel.date),
+        with: {
+          matchPlayer: {
+            with: {
+              player: {
+                columns: { name: true }
+              }
+            }
+          }
+        }
+      }
     }
   });
 
   return {
     ...res
   };
+}
+
+type MatchWithPlayers = typeof matchModel.$inferSelect & {
+  matchPlayer: (typeof matchPlayerModel.$inferSelect & { player: { name: string } | null })[]
+}
+
+function MatchItem({ match }: { match: MatchWithPlayers }) {
+  const teamA = match.matchPlayer.filter((p) => p.side === "teamA").map((p) => p.player?.name || "X").join(" and ");
+  const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "X").join(" and ");
+
+  return (
+    <ListItem>
+      <ListItemText
+        primary={`${teamA} vs. ${teamB}`}
+        secondary={<span>{match.teamAScore} - {match.teamBScore} &nbsp;&bull;&nbsp; {match.date.toLocaleString()}</span>}
+      />
+    </ListItem>
+  );
 }
 
 export default async function ViewGroup({ params }: ViewGroupProps) {
@@ -47,7 +78,7 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
   return (
     <Box sx={{ p: 2 }}>
       {isNew(data.createdAt) && (
-        <Alert severity="info">
+        <Alert severity="info" sx={{ mb: 2 }}>
           Please make sure to save the link to this group to ensure it doesn&apos;t get lost.
         </Alert>
       )}
@@ -60,12 +91,12 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
                 {data.name}
               </Typography>
             </CardContent>
-            {/* <CardActions>
-              <Button size="small">Record Match</Button>
-            </CardActions> */}
+            <CardActions>
+              <Button size="small" LinkComponent={Link} href={`/leaderboard/${params.id}/matches/add`}>Record Match</Button>
+            </CardActions>
           </Card>
         </Grid>
-        <Grid xs={12} sm={6}>
+        <Grid xs={12} md={6}>
           <Card variant="outlined">
             <CardContent>
               <Typography variant="h5">
@@ -79,16 +110,12 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
                   <ListItemText primary="Nothing yet" />
                 </ListItem>
               ) : (
-                data.matches?.map((match) => (
-                  <ListItemButton key={match.id}>
-                    <ListItemText>{match.id}</ListItemText>
-                  </ListItemButton>
-                ))
+                data.matches?.map((match) => <MatchItem key={match.id} match={match} />)
               )}
             </List>
           </Card>
         </Grid>
-        <Grid xs={12} sm={6}>
+        <Grid xs={12} md={6}>
           <Card variant="outlined">
             <CardContent>
               <Typography variant="h5">
@@ -103,9 +130,9 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
                 </ListItem>
               ) : (
                 data.players?.map((player) => (
-                  <ListItemButton key={player.id}>
-                    <ListItemText>{player.id}</ListItemText>
-                  </ListItemButton>
+                  <ListItem key={player.id}>
+                    <ListItemText>{player.name}</ListItemText>
+                  </ListItem>
                 ))
               )}
             </List>

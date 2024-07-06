@@ -2,8 +2,9 @@
 
 import { z } from "zod";
 import db from "../../../../db/db";
-import { group } from "../../../../db/schema";
+import { group, player } from "../../../../db/schema";
 import { redirect } from "next/navigation";
+import { revalidateTag } from "next/cache";
 
 const schema = z.object({
   name: z.string().min(1)

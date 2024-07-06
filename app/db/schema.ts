@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { integer, text, uuid, timestamp, pgEnum, pgTable } from "drizzle-orm/pg-core";
+import { integer, text, uuid, timestamp, pgEnum, pgTable, unique } from "drizzle-orm/pg-core";
 
 export const group = pgTable("group", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -20,7 +20,9 @@ export const player = pgTable("player", {
   name: text("name").notNull(),
   groupId: uuid("group_id").notNull().references(() => group.id),
   rank: integer("rank").notNull().default(1000)
-});
+}, (t) => ({
+  unq: unique().on(t.groupId, t.name)
+}));
 
 export const playerRelations = relations(player, ({ one, many }) => ({
   group: one(group, { fields: [player.groupId], references: [group.id] }),
@@ -32,8 +34,8 @@ export const match = pgTable("match", {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   date: timestamp('date').notNull().defaultNow(),
-  winningScore: integer('winning_score').notNull(),
-  losingScore: integer('losing_score').notNull(),
+  teamAScore: integer('team_a_score').notNull(),
+  teamBScore: integer('team_b_score').notNull(),
   groupId: uuid("group_id").notNull().references(() => group.id),
 });
 
@@ -42,7 +44,7 @@ export const matchRelations = relations(match, ({ one, many }) => ({
   matchPlayer: many(matchPlayer)
 }));
 
-export const sideEnum = pgEnum("side", ["winning", "losing"]);
+export const sideEnum = pgEnum("side", ["teamA", "teamB"]);
 
 export const matchPlayer = pgTable("match_player", {
   id: uuid("id").primaryKey().defaultRandom(),

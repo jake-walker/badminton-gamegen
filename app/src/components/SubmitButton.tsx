@@ -1,7 +1,7 @@
 import { LoadingButton } from "@mui/lab";
 import { useFormStatus } from "react-dom";
 
-export default function SubmitButton({ text = "Submit" }: { text: string}) {
+export default function SubmitButton({ text = "Submit" }: { text: string }) {
   const { pending } = useFormStatus();
 
   return (
