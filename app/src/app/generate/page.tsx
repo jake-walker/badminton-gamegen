@@ -21,8 +21,10 @@ export default function Generate() {
   }
 
   const addGame = (n: number): React.MouseEventHandler => () => {
+    const newState: generation.Session = { ...generatorState };
+
     for (let i = 0; i < n; i++) {
-      const match = generation.nextGame(generatorState, configuration.courts);
+      const match = generation.nextGame(newState, configuration.courts);
 
       if (match === null) {
         setErrorMessage("Could not generate the next game. Please make sure you have enough players to fill a game.");
@@ -30,12 +32,10 @@ export default function Generate() {
       };
 
       setErrorMessage(null);
-
-      setGeneratorState((s) => ({
-        ...s,
-        matches: [...s.matches, match],
-      }));
+      newState.matches.push(match);
     }
+
+    setGeneratorState(newState);
   }
 
   const copyToClipboard = async () => {
