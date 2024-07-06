@@ -28,7 +28,9 @@ async function getData(id: string) {
   const res = await db.query.group.findFirst({
     where: eq(group.id, id),
     with: {
-      players: true,
+      players: {
+        orderBy: desc(playerModel.rank)
+      },
       matches: {
         limit: 6,
         orderBy: desc(matchModel.date),
@@ -57,6 +59,22 @@ type MatchWithPlayers = typeof matchModel.$inferSelect & {
 function MatchItem({ match }: { match: MatchWithPlayers }) {
   const teamA = match.matchPlayer.filter((p) => p.side === "teamA").map((p) => p.player?.name || "X").join(" and ");
   const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "X").join(" and ");
+
+  let teamAScore: string | number = match.teamAScore;
+  let teamBScore: string | number = match.teamBScore;
+
+  if (match.inexactScore) {
+    if (teamAScore === teamBScore) {
+      teamAScore = "Draw";
+      teamBScore = "Draw"
+    } else if (teamAScore > teamBScore) {
+      teamAScore = "Win";
+      teamBScore = "Lose";
+    } else {
+      teamAScore = "Lose";
+      teamBScore = "Win";
+    }
+  }
 
   return (
     <ListItem>
@@ -129,9 +147,9 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
                   <ListItemText primary="Nobody yet" />
                 </ListItem>
               ) : (
-                data.players?.map((player) => (
+                data.players?.map((player, i) => (
                   <ListItem key={player.id}>
-                    <ListItemText>{player.name}</ListItemText>
+                    <ListItemText primary={`${i+1}. ${player.name}`} secondary={`Rating: ${player.rank}`} />
                   </ListItem>
                 ))
               )}

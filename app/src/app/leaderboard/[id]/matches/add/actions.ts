@@ -4,6 +4,7 @@ import { eq, param } from "drizzle-orm";
 import db from "../../../../../../db/db";
 import { match, matchPlayer, player as playerModel } from "../../../../../../db/schema";
 import { z } from "zod";
+import { createMatch } from "@/app/leaderboard/leaderboard";
 
 const newMatchSchema = z.object({
   teamA: z.string().min(1).nullable().array().min(1),
@@ -43,11 +44,6 @@ export async function addMatch(groupId: string, data: z.infer<typeof newMatchSch
     }
   };
 
-  const teams = [
-    ...validated.data.teamA.map((item) => ({ team: "teamA" as const, name: item })),
-    ...validated.data.teamB.map((item) => ({ team: "teamB" as const, name: item }))
-  ];
-
   const players = await getPlayers(groupId);
 
   const createPlayer = async (name: string) => {
@@ -63,32 +59,16 @@ export async function addMatch(groupId: string, data: z.infer<typeof newMatchSch
     return res[0];
   };
 
-  const teamPlayers = await Promise.all(teams.map(async (item) => ({
-    id: (await createOrGetPlayer(players, item.name, createPlayer))?.id || null,
-    ...item
-  })));
-
-  const m = await db.insert(match).values({
+  const match = await createMatch({
     groupId,
+    inexactScore: false,
+    teamAPlayerIds: await Promise.all(validated.data.teamA
+      .map(async (name) => name !== null ? (await createOrGetPlayer(players, name, createPlayer))?.id || null : null)),
     teamAScore: validated.data.teamAScore,
-    teamBScore: validated.data.teamBScore,
-  }).returning();
+    teamBPlayerIds: await Promise.all(validated.data.teamB
+      .map(async (name) => name !== null ? (await createOrGetPlayer(players, name, createPlayer))?.id || null : null)),
+    teamBScore: validated.data.teamBScore
+  });
 
-  if (!m) {
-    throw Error("Expected to have created match");
-  }
-
-  const matchId = m[0].id;
-
-  const matchPlayers = await db.insert(matchPlayer).values(teamPlayers.map((item) => ({
-    matchId,
-    playerId: item.id,
-    side: item.team
-  })));
-
-  if (!matchPlayers) {
-    throw Error("Expected to have created match players");
-  }
-
-  return { created: matchId };
+  return { created: match.id };
 }

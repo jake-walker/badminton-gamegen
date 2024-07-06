@@ -15,6 +15,13 @@
       "when": 1719948662909,
       "tag": "0001_fantastic_bruce_banner",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1720280402327,
+      "tag": "0002_giant_diamondback",
+      "breakpoints": true
     }
   ]
 }
