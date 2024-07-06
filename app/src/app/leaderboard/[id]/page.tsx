@@ -80,7 +80,7 @@ function MatchItem({ match }: { match: MatchWithPlayers }) {
     <ListItem>
       <ListItemText
         primary={`${teamA} vs. ${teamB}`}
-        secondary={<span>{match.teamAScore} - {match.teamBScore} &nbsp;&bull;&nbsp; {match.date.toLocaleString()}</span>}
+        secondary={<span>{teamAScore} - {teamBScore} &nbsp;&bull;&nbsp; {match.date.toLocaleString()}</span>}
       />
     </ListItem>
   );
