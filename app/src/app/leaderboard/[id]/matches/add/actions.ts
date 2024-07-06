@@ -1,10 +1,10 @@
 "use server";
 
-import { eq, param } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import db from "../../../../../../db/db";
-import { match, matchPlayer, player as playerModel } from "../../../../../../db/schema";
+import { player as playerModel } from "../../../../../../db/schema";
 import { z } from "zod";
-import { createMatch } from "@/app/leaderboard/leaderboard";
+import { createMatch, resolvePlayerIds } from "@/app/leaderboard/leaderboard";
 
 const newMatchSchema = z.object({
   teamA: z.string().min(1).nullable().array().min(1),
@@ -21,20 +21,6 @@ export async function getPlayers(groupId: string) {
   return res;
 }
 
-async function createOrGetPlayer(players: Awaited<ReturnType<typeof getPlayers>>, name: string | null, createPlayer: (name: string) => Promise<typeof playerModel.$inferSelect>) {
-  if (name === null) {
-    return null;
-  }
-
-  let player = players.find((pl) => pl.name === name);
-
-  if (typeof player === "undefined") {
-    player = await createPlayer(name);
-  }
-
-  return player;
-};
-
 export async function addMatch(groupId: string, data: z.infer<typeof newMatchSchema>) {
   const validated = newMatchSchema.safeParse(data);
 
@@ -46,27 +32,12 @@ export async function addMatch(groupId: string, data: z.infer<typeof newMatchSch
 
   const players = await getPlayers(groupId);
 
-  const createPlayer = async (name: string) => {
-    const res = await db.insert(playerModel).values({
-      groupId,
-      name
-    }).returning();
-
-    if (!res) {
-      throw Error("Expected to have created player");
-    }
-
-    return res[0];
-  };
-
   const match = await createMatch({
     groupId,
     inexactScore: false,
-    teamAPlayerIds: await Promise.all(validated.data.teamA
-      .map(async (name) => name !== null ? (await createOrGetPlayer(players, name, createPlayer))?.id || null : null)),
+    teamAPlayerIds: await resolvePlayerIds(groupId, players, validated.data.teamA),
     teamAScore: validated.data.teamAScore,
-    teamBPlayerIds: await Promise.all(validated.data.teamB
-      .map(async (name) => name !== null ? (await createOrGetPlayer(players, name, createPlayer))?.id || null : null)),
+    teamBPlayerIds: await resolvePlayerIds(groupId, players, validated.data.teamB),
     teamBScore: validated.data.teamBScore
   });
 

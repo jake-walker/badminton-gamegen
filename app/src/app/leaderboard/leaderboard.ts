@@ -14,6 +14,29 @@ type NewMatchInfo = {
   inexactScore: boolean
 };
 
+export async function resolvePlayerIds(groupId: string, players: (typeof schema.player.$inferSelect)[], names: (string | null)[]): Promise<(string | null)[]> {
+  return Promise.all(names.map(async (name) => {
+    if (name === null) return null;
+
+    let player = players.find((p) => p.name === name);
+
+    if (typeof player === "undefined") {
+      const res = await db.insert(schema.player).values({
+        groupId,
+        name,
+      }).returning();
+
+      if (!res) {
+        throw Error("Could not create player");
+      }
+
+      player = res[0];
+    }
+
+    return player.id;
+  }));
+}
+
 async function getPlayerEloRank(playerId: string | null): Promise<number> {
   if (playerId === null) return 1500;
 
