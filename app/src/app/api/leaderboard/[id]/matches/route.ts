@@ -9,7 +9,8 @@ const newMatchSchema = z.object({
   teamB: z.string().min(1).nullable().array().min(1),
   teamAScore: z.number().min(0).safe().finite(),
   teamBScore: z.number().min(0).safe().finite(),
-  inexactScore: z.boolean().default(false)
+  inexactScore: z.boolean().default(false),
+  ranked: z.boolean().default(true)
 });
 
 export async function POST(request: Request, { params }: { params: { id: string }}) {
@@ -29,7 +30,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
     teamAPlayerIds: await resolvePlayerIds(params.id, players, data.teamA),
     teamAScore: data.teamAScore,
     teamBPlayerIds: await resolvePlayerIds(params.id, players, data.teamB),
-    teamBScore: data.teamBScore
+    teamBScore: data.teamBScore,
+    ranked: data.ranked
   });
 
   return Response.json(match);

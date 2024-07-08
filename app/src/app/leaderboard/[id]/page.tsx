@@ -57,8 +57,8 @@ type MatchWithPlayers = typeof matchModel.$inferSelect & {
 }
 
 function MatchItem({ match }: { match: MatchWithPlayers }) {
-  const teamA = match.matchPlayer.filter((p) => p.side === "teamA").map((p) => p.player?.name || "X").join(" and ");
-  const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "X").join(" and ");
+  const teamA = match.matchPlayer.filter((p) => p.side === "teamA").map((p) => p.player?.name || "(?)").join(" and ");
+  const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "(?)").join(" and ");
 
   let teamAScore: string | number = match.teamAScore;
   let teamBScore: string | number = match.teamBScore;
@@ -80,7 +80,14 @@ function MatchItem({ match }: { match: MatchWithPlayers }) {
     <ListItem>
       <ListItemText
         primary={`${teamA} vs. ${teamB}`}
-        secondary={<span>{teamAScore} - {teamBScore} &nbsp;&bull;&nbsp; {match.date.toLocaleString()}</span>}
+        secondary={
+          <span>
+            {teamAScore} - {teamBScore}
+            &ensp;&bull;&ensp;
+            {match.date.toLocaleString()}
+            {!match.ranked && <span>&ensp;&bull;&ensp;(unranked)</span>}
+          </span>
+        }
       />
     </ListItem>
   );

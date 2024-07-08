@@ -56,6 +56,8 @@ export default function AddMatchPage({ params }: AddMatchProps) {
   const [teamAScore, setTeamAScore] = React.useState<number>(0);
   const [teamBScore, setTeamBScore] = React.useState<number>(0);
 
+  const [isRanked, setIsRanked] = React.useState<boolean>(true);
+
   const [errorMessage, setErrorMessage] = React.useState<string>("");
 
   React.useEffect(() => {
@@ -75,7 +77,8 @@ export default function AddMatchPage({ params }: AddMatchProps) {
       teamA,
       teamB,
       teamAScore,
-      teamBScore
+      teamBScore,
+      ranked: isRanked
     });
 
     if (res.errors) {
@@ -92,7 +95,14 @@ export default function AddMatchPage({ params }: AddMatchProps) {
 
       <p>Record the results of a match here. The order of the teams does not matter, and you should add in blank spaces for any players that don&apos;t want to take part in the leaderboard.</p>
 
-      <p>{JSON.stringify({ teamA, teamB, teamAScore, teamBScore })}</p>
+      <p>{JSON.stringify({ teamA, teamB, teamAScore, teamBScore, isRanked })}</p>
+
+      <FormGroup>
+        <FormControlLabel
+          control={<Switch checked={isRanked} onChange={(_, checked) => setIsRanked(checked)} />}
+          label={isRanked ? "Ranked Game" : "Casual Game"}
+        />
+      </FormGroup>
 
       <Grid container spacing={2}>
         <Grid xs={12} sm={6}>
@@ -138,7 +148,14 @@ export default function AddMatchPage({ params }: AddMatchProps) {
         </Grid>
       </Grid>
 
-      <Button variant="contained" size="large" sx={{ float: "right", mt: 2 }} onClick={handleSubmit}>Submit</Button>
+      <Typography variant="caption" color="CaptionText" sx={{ textAlign: "right", display: "block", mt: 2, mb: 1 }}>
+        {isRanked
+          ? "This is a ranked game, players ranks will be affected."
+          : "This is a casual game, the game will be recorded without ranks being effected."
+        }
+      </Typography>
+
+      <Button variant="contained" size="large" sx={{ float: "right", mb: 2 }} onClick={handleSubmit}>Submit</Button>
     </Box>
   );
 }

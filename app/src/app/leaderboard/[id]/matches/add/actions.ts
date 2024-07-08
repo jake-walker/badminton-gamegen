@@ -7,10 +7,11 @@ import { z } from "zod";
 import { createMatch, resolvePlayerIds } from "@/app/leaderboard/leaderboard";
 
 const newMatchSchema = z.object({
-  teamA: z.string().min(1).nullable().array().min(1),
-  teamB: z.string().min(1).nullable().array().min(1),
-  teamAScore: z.number().min(0).safe().finite(),
-  teamBScore: z.number().min(0).safe().finite()
+  teamA: z.string().min(1, { message: "Player name must be at least 1 character long" }).nullable().array().min(1, { message: "Team A must have at least 1 player" }),
+  teamB: z.string().min(1, { message: "Player name must be at least 1 character long" }).nullable().array().min(1, { message: "Team B must have at least 1 player" }),
+  teamAScore: z.number().min(0, { message: "The score of team A must be at least 0" }).safe().finite(),
+  teamBScore: z.number().min(0, { message: "The score of team B must be at least 0" }).safe().finite(),
+  ranked: z.boolean().default(true)
 });
 
 export async function getPlayers(groupId: string) {
@@ -38,7 +39,8 @@ export async function addMatch(groupId: string, data: z.infer<typeof newMatchSch
     teamAPlayerIds: await resolvePlayerIds(groupId, players, validated.data.teamA),
     teamAScore: validated.data.teamAScore,
     teamBPlayerIds: await resolvePlayerIds(groupId, players, validated.data.teamB),
-    teamBScore: validated.data.teamBScore
+    teamBScore: validated.data.teamBScore,
+    ranked: validated.data.ranked
   });
 
   return { created: match.id };

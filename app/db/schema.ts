@@ -38,6 +38,7 @@ export const match = pgTable("match", {
   teamBScore: integer('team_b_score').notNull(),
   inexactScore: boolean('inexact_score').notNull().default(false),
   groupId: uuid("group_id").notNull().references(() => group.id),
+  ranked: boolean('ranked').notNull().default(true)
 });
 
 export const matchRelations = relations(match, ({ one, many }) => ({

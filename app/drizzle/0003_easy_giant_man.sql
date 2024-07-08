@@ -1,0 +1,1 @@
+ALTER TABLE "match" ADD COLUMN "ranked" boolean DEFAULT true NOT NULL;

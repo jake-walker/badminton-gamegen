@@ -11,7 +11,8 @@ type NewMatchInfo = {
   teamBPlayerIds: (string | null)[],
   teamAScore: number,
   teamBScore: number,
-  inexactScore: boolean
+  inexactScore: boolean,
+  ranked: boolean
 };
 
 export async function resolvePlayerIds(groupId: string, players: (typeof schema.player.$inferSelect)[], names: (string | null)[]): Promise<(string | null)[]> {
@@ -81,7 +82,8 @@ export async function createMatch(info: NewMatchInfo): Promise<typeof schema.mat
     groupId: info.groupId,
     teamAScore: info.teamAScore,
     teamBScore: info.teamBScore,
-    inexactScore: info.inexactScore
+    inexactScore: info.inexactScore,
+    ranked: info.ranked
   }).returning())[0];
 
   if (!match) {
@@ -108,10 +110,12 @@ export async function createMatch(info: NewMatchInfo): Promise<typeof schema.mat
     throw Error("Failed to create match players");
   }
 
-  if (info.teamAScore > info.teamBScore) {
-    await updateEloRankings(info.teamAPlayerIds, info.teamBPlayerIds);
-  } else if (info.teamBScore > info.teamAScore) {
-    await updateEloRankings(info.teamBPlayerIds, info.teamAPlayerIds);
+  if (info.ranked) {
+    if (info.teamAScore > info.teamBScore) {
+      await updateEloRankings(info.teamAPlayerIds, info.teamBPlayerIds);
+    } else if (info.teamBScore > info.teamAScore) {
+      await updateEloRankings(info.teamBPlayerIds, info.teamAPlayerIds);
+    }
   }
 
   return match;
