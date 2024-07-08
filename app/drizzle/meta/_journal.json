@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1719761560941,
+      "tag": "0000_volatile_lorna_dane",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1719948662909,
+      "tag": "0001_fantastic_bruce_banner",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1720280402327,
+      "tag": "0002_giant_diamondback",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1720458430442,
+      "tag": "0003_easy_giant_man",
+      "breakpoints": true
+    }
+  ]
+}
