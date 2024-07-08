@@ -95,8 +95,6 @@ export default function AddMatchPage({ params }: AddMatchProps) {
 
       <p>Record the results of a match here. The order of the teams does not matter, and you should add in blank spaces for any players that don&apos;t want to take part in the leaderboard.</p>
 
-      <p>{JSON.stringify({ teamA, teamB, teamAScore, teamBScore, isRanked })}</p>
-
       <FormGroup>
         <FormControlLabel
           control={<Switch checked={isRanked} onChange={(_, checked) => setIsRanked(checked)} />}
@@ -120,7 +118,7 @@ export default function AddMatchPage({ params }: AddMatchProps) {
             </List>
 
             <CardActions>
-              <Button size="small" onClick={() => setTeamA([...teamA, null])}>Add Player</Button>
+              <Button size="small" onClick={() => setTeamA([...teamA, ""])}>Add Player</Button>
               <Button size="small" onClick={() => setTeamA(teamA.slice(0, -1))}>Remove Last Player</Button>
             </CardActions>
           </Card>
@@ -141,7 +139,7 @@ export default function AddMatchPage({ params }: AddMatchProps) {
             </List>
 
             <CardActions>
-              <Button size="small" onClick={() => setTeamB([...teamB, null])}>Add Player</Button>
+              <Button size="small" onClick={() => setTeamB([...teamB, ""])}>Add Player</Button>
               <Button size="small" onClick={() => setTeamB(teamB.slice(0, -1))}>Remove Last Player</Button>
             </CardActions>
           </Card>
