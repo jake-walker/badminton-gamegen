@@ -56,7 +56,7 @@ type MatchWithPlayers = typeof matchModel.$inferSelect & {
   matchPlayer: (typeof matchPlayerModel.$inferSelect & { player: { name: string } | null })[]
 }
 
-function MatchItem({ match }: { match: MatchWithPlayers }) {
+function MatchItem({ match, leaderboardId }: { match: MatchWithPlayers, leaderboardId: string }) {
   const teamA = match.matchPlayer.filter((p) => p.side === "teamA").map((p) => p.player?.name || "(?)").join(" and ");
   const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "(?)").join(" and ");
 
@@ -77,7 +77,7 @@ function MatchItem({ match }: { match: MatchWithPlayers }) {
   }
 
   return (
-    <ListItem>
+    <ListItemButton LinkComponent={Link} href={`/leaderboard/${leaderboardId}/match/${match.id}`}>
       <ListItemText
         primary={`${teamA} vs. ${teamB}`}
         secondary={
@@ -89,7 +89,7 @@ function MatchItem({ match }: { match: MatchWithPlayers }) {
           </span>
         }
       />
-    </ListItem>
+    </ListItemButton>
   );
 }
 
@@ -117,7 +117,7 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
               </Typography>
             </CardContent>
             <CardActions>
-              <Button size="small" LinkComponent={Link} href={`/leaderboard/${params.id}/matches/add`}>Record Match</Button>
+              <Button size="small" LinkComponent={Link} href={`/leaderboard/${params.id}/match/add`}>Record Match</Button>
             </CardActions>
           </Card>
         </Grid>
@@ -135,7 +135,7 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
                   <ListItemText primary="Nothing yet" />
                 </ListItem>
               ) : (
-                data.matches?.map((match) => <MatchItem key={match.id} match={match} />)
+                data.matches?.map((match) => <MatchItem key={match.id} match={match} leaderboardId={params.id} />)
               )}
             </List>
           </Card>
