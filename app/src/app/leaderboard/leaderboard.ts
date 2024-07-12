@@ -39,7 +39,7 @@ export async function resolvePlayerIds(groupId: string, players: (typeof schema.
 }
 
 async function getPlayerEloRank(playerId: string | null): Promise<number> {
-  if (playerId === null) return 1500;
+  if (playerId === null) return schema.defaultElo;
 
   const player = await db.query.player.findFirst({
     where: eq(schema.player.id, playerId)
@@ -51,14 +51,14 @@ async function getPlayerEloRank(playerId: string | null): Promise<number> {
 }
 
 async function updatePlayerElo(playerId: string, rankIncrease: number): Promise<void> {
-  console.log(`Updating ${playerId} rank by ${rankIncrease}`);
+  console.log(`Updating ${playerId} rank by ${Math.round(rankIncrease)}`);
 
   await db.update(schema.player).set({
     rank: sql`${schema.player.rank} + ${Math.round(rankIncrease)}`
   }).where(eq(schema.player.id, playerId));
 }
 
-async function updateEloRankings(winnerPlayerIds: (string | null)[], loserPlayerIds: (string | null)[]) {
+export async function updateEloRankings(winnerPlayerIds: (string | null)[], loserPlayerIds: (string | null)[]) {
   const winnerRatings = await Promise.all(winnerPlayerIds.map(async (playerId) => getPlayerEloRank(playerId)));
   const loserRatings = await Promise.all(loserPlayerIds.map(async (playerId) => getPlayerEloRank(playerId)));
 
