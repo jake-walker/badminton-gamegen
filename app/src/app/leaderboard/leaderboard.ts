@@ -1,5 +1,5 @@
 "use server";
-import { eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import db from "../../../db/db";
 import * as schema from "../../../db/schema";
 
@@ -50,31 +50,37 @@ async function getPlayerEloRank(playerId: string | null): Promise<number> {
   return player.rank;
 }
 
-async function updatePlayerElo(playerId: string, rankIncrease: number): Promise<void> {
-  console.log(`Updating ${playerId} rank by ${Math.round(rankIncrease)}`);
+async function updatePlayerElo(matchId: string, playerId: string, currentRank: number, rankIncrease: number): Promise<void> {
+  const newRank = Math.round(currentRank + rankIncrease);
+  console.log(`Updating ${playerId} rank from ${currentRank} to ${newRank}`);
 
   await db.update(schema.player).set({
-    rank: sql`${schema.player.rank} + ${Math.round(rankIncrease)}`
+    rank: newRank
   }).where(eq(schema.player.id, playerId));
+
+  await db.update(schema.matchPlayer).set({
+    oldRank: currentRank,
+    newRank,
+  }).where(and(eq(schema.matchPlayer.playerId, playerId), eq(schema.matchPlayer.matchId, matchId)));
 }
 
-export async function updateEloRankings(winnerPlayerIds: (string | null)[], loserPlayerIds: (string | null)[]) {
-  const winnerRatings = await Promise.all(winnerPlayerIds.map(async (playerId) => getPlayerEloRank(playerId)));
-  const loserRatings = await Promise.all(loserPlayerIds.map(async (playerId) => getPlayerEloRank(playerId)));
+export async function updateEloRankings(matchId: string, winnerPlayerIds: (string | null)[], loserPlayerIds: (string | null)[]) {
+  const winners = await Promise.all(winnerPlayerIds.map(async (playerId) => ({ playerId, currentRank: await getPlayerEloRank(playerId) })));
+  const losers = await Promise.all(loserPlayerIds.map(async (playerId) => ({ playerId, currentRank: await getPlayerEloRank(playerId) })));
 
-  const winnerRating = winnerRatings.reduce((partialSum, a) => partialSum + a, 0) / winnerPlayerIds.length;
-  const loserRating = loserRatings.reduce((partialSum, a) => partialSum + a, 0) / loserPlayerIds.length;
+  const winnerRating = winners.map((x) => x.currentRank).reduce((partialSum, a) => partialSum + a, 0) / winnerPlayerIds.length;
+  const loserRating = losers.map((x) => x.currentRank).reduce((partialSum, a) => partialSum + a, 0) / loserPlayerIds.length;
 
   const expectedWinner = 1 / (1 + 10 ** ((loserRating - winnerRating) / 400))
   const expectedLoser = 1 - expectedWinner;
 
-  await Promise.all(winnerPlayerIds
-    .filter((playerId) => playerId !== null)
-    .map(async (playerId) => updatePlayerElo(playerId, kFactor * (1 - expectedWinner))));
+  await Promise.all(winners
+    .filter(({ playerId }) => playerId !== null)
+    .map(async (p) => updatePlayerElo(matchId, p.playerId!, p.currentRank, kFactor * (1 - expectedWinner))));
 
-  await Promise.all(loserPlayerIds
-    .filter((playerId) => playerId !== null)
-    .map(async (playerId) => updatePlayerElo(playerId, kFactor * (0 - expectedLoser))));
+  await Promise.all(losers
+    .filter(({ playerId }) => playerId !== null)
+    .map(async (p) => updatePlayerElo(matchId, p.playerId!, p.currentRank, kFactor * (0 - expectedLoser))));
 }
 
 export async function createMatch(info: NewMatchInfo): Promise<typeof schema.match.$inferSelect> {
@@ -112,9 +118,9 @@ export async function createMatch(info: NewMatchInfo): Promise<typeof schema.mat
 
   if (info.ranked) {
     if (info.teamAScore > info.teamBScore) {
-      await updateEloRankings(info.teamAPlayerIds, info.teamBPlayerIds);
+      await updateEloRankings(match.id, info.teamAPlayerIds, info.teamBPlayerIds);
     } else if (info.teamBScore > info.teamAScore) {
-      await updateEloRankings(info.teamBPlayerIds, info.teamAPlayerIds);
+      await updateEloRankings(match.id, info.teamBPlayerIds, info.teamAPlayerIds);
     }
   }
 

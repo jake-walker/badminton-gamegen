@@ -26,7 +26,7 @@ export async function recalculateRanks(where?: SQL) {
     const winnerPlayerIds = match.matchPlayer.filter((mp) => mp.side == winningTeam).map((mp) => mp.playerId);
     const losingPlayerIds = match.matchPlayer.filter((mp) => mp.side !== winningTeam).map((mp) => mp.playerId);
 
-    await updateEloRankings(winnerPlayerIds, losingPlayerIds);
+    await updateEloRankings(match.id, winnerPlayerIds, losingPlayerIds);
   }
 }
 

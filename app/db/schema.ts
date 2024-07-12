@@ -56,7 +56,9 @@ export const matchPlayer = pgTable("match_player", {
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
   matchId: uuid("match_id").notNull().references(() => match.id),
   playerId: uuid("player_id").references(() => player.id),
-  side: sideEnum("side").notNull()
+  side: sideEnum("side").notNull(),
+  oldRank: integer("old_rank"),
+  newRank: integer("new_rank")
 });
 
 export const matchPlayerRelations = relations(matchPlayer, ({ one }) => ({
