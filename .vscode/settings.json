@@ -18,5 +18,5 @@
   "typescript.preferences.quoteStyle": "double",
   "typescript.format.semicolons": "insert",
   "eslint.lintTask.enable": true,
-  "eslint.lintTask.options": "-c ./app/.eslintrc.cjs --ext .ts ./app"
+  "eslint.lintTask.options": "-c ./app/.eslintrc.cjs --ext .ts --parser-options project:'./app/tsconfig.json' ./app"
 }

@@ -2,5 +2,8 @@
   "name": "badminton-games",
   "license": "MIT",
   "version": "2.0.0",
-  "workspaces": ["packages/*", "app"]
+  "workspaces": ["packages/*", "app"],
+  "scripts": {
+    "lint": "cd ./app/ && bun run lint"
+  }
 }
