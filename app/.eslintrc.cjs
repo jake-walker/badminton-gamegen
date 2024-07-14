@@ -16,6 +16,7 @@ module.exports = {
     "plugin:import/warnings",
     "plugin:import/typescript",
     "plugin:deprecation/recommended",
+    "plugin:react/jsx-runtime",
   ],
   settings: {
     "import/extensions": [".js", ".ts"],
@@ -25,4 +26,8 @@ module.exports = {
   },
   plugins: ["@typescript-eslint", "import", "deprecation", "unused-imports"],
   ignorePatterns: ["node_modules/*", ".wrangler", ".eslintrc.cjs"],
+  rules: {
+    // Adding default props in typescript in the way this linter wants is not idiomatic
+    "react/require-default-props": 0,
+  },
 };

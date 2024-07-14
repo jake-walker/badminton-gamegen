@@ -1,15 +1,15 @@
 "use client";
 
-import { IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader } from "@mui/material";
-import * as atoms from "../../sessionAtoms";
-import { useAtom } from "jotai";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { removePlayer, addPlayer } from "generator";
+import { IconButton, List, ListItem, ListItemButton, ListItemText, ListSubheader } from "@mui/material";
+import { addPlayer, removePlayer } from "generator";
+import { useAtom } from "jotai";
 import { MouseEventHandler } from "react";
+import * as atoms from "../../sessionAtoms";
 
 export default function PlayerList() {
   const [generatorState, setGeneratorState] = useAtom(atoms.session);
-  const [playerHistory, setPlayerHistory] = useAtom(atoms.playerHistory);
+  const [playerHistory] = useAtom(atoms.playerHistory);
 
   const deletePlayer = (playerId: string): MouseEventHandler => () => {
     setGeneratorState((s) => removePlayer(s, playerId));

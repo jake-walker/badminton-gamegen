@@ -1,29 +1,31 @@
 "use client";
 
-import { Alert, Box, Button, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, Link, List, ListItem, ListItemText, ListSubheader, MenuItem, NativeSelect, OutlinedInput, Select, Tab, Tabs } from "@mui/material";
-import React from "react";
-import * as generation from "generator";
-import { session as sessionAtom, configuration as configurationAtom } from "../../sessionAtoms";
-import { useAtom } from "jotai";
+// eslint-disable-next-line import/order, import/no-unresolved, import/extensions
 import Configuration from "@/components/generate/Configuration";
-import PlayerList from "@/components/generate/PlayerList"
+// eslint-disable-next-line import/order, import/no-unresolved, import/extensions
+import PlayerList from "@/components/generate/PlayerList";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
+import { Alert, Box, Button, Link, List, ListItem, ListItemText, Tab } from "@mui/material";
+import * as generation from "generator";
+import { useAtom } from "jotai";
+import React from "react";
+import { configuration as configurationAtom, session as sessionAtom } from "../../sessionAtoms";
 
 export default function Generate() {
   const [generatorState, setGeneratorState] = useAtom(sessionAtom);
-  const [configuration, setConfiguration] = useAtom(configurationAtom);
+  const [configuration] = useAtom(configurationAtom);
 
   const [currentTab, setCurrentTab] = React.useState<string>("config");
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     setCurrentTab(newValue);
   }
 
   const addGame = (n: number): React.MouseEventHandler => () => {
     const newState: generation.Session = { ...generatorState };
 
-    for (let i = 0; i < n; i++) {
+    for (let i = 0; i < n; i+= 1) {
       const match = generation.nextGame(newState, configuration.courts);
 
       if (match === null) {
@@ -66,6 +68,7 @@ export default function Generate() {
 
         <List>
           {generatorState.matches.map((match, i) => (
+            // eslint-disable-next-line react/no-array-index-key
             <ListItem key={i}>
               <ListItemText primary={`${i+1}. [Court ${match.court + 1}] ${generation.formatMatch(match)}`} />
             </ListItem>

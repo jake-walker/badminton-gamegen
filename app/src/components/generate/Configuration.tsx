@@ -2,11 +2,11 @@
 
 import React from "react";
 
-import { Alert, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select } from "@mui/material";
-import * as atoms from "../../sessionAtoms";
-import { useAtom } from "jotai";
 import AddIcon from '@mui/icons-material/Add';
+import { Alert, FormControl, FormHelperText, IconButton, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select } from "@mui/material";
 import * as generation from "generator";
+import { useAtom } from "jotai";
+import * as atoms from "../../sessionAtoms";
 
 export default function GeneratorConfiguration() {
   const [generatorState, setGeneratorState] = useAtom(atoms.session);
@@ -17,14 +17,14 @@ export default function GeneratorConfiguration() {
   const requiredPlayers = (configuration.courts * (configuration.teamSize * 2)) - generatorState.players.length;
 
   const addPlayer = () => {
-    if (newPlayer.trim() == "") return;
+    if (newPlayer.trim() === "") return;
     setGeneratorState((s) => generation.addPlayer(s, newPlayer));
     if (!playerHistory.includes(newPlayer)) setPlayerHistory((h) => [...h, newPlayer]);
     setNewPlayer("");
   };
 
   const handleNewPlayerKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key == "Enter") {
+    if (e.key === "Enter") {
       addPlayer();
     }
   }
@@ -39,6 +39,7 @@ export default function GeneratorConfiguration() {
         <InputLabel id="courts-input-label">Courts</InputLabel>
         <Select labelId="courts-input-label" value={configuration.courts} label="Courts" onChange={(e) => setConfiguration({...configuration, courts: e.target.value as number})}>
           {[...Array(10)].map((_, i) => (
+            // eslint-disable-next-line react/no-array-index-key
             <MenuItem key={i} value={i+1}>{i+1}</MenuItem>
           ))}
         </Select>
@@ -48,6 +49,7 @@ export default function GeneratorConfiguration() {
         <InputLabel id="team-size-input-label">Team Size</InputLabel>
         <Select labelId="team-size-input-label" value={configuration.teamSize} label="Team Size" disabled>
           {[...Array(10)].map((_, i) => (
+            // eslint-disable-next-line react/no-array-index-key
             <MenuItem key={i} value={i+1}>{i+1}</MenuItem>
           ))}
         </Select>

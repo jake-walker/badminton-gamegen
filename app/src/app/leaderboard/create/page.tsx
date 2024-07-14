@@ -1,9 +1,10 @@
 "use client";
 
+// eslint-disable-next-line import/order, import/no-unresolved, import/extensions
+import SubmitButton from "@/components/SubmitButton";
 import { Box, Stack, TextField } from "@mui/material";
 import { useFormState } from "react-dom";
-import { newGroup } from "./actions";
-import SubmitButton from "@/components/SubmitButton";
+import newGroup from "./actions";
 
 export default function CreateGroup() {
   const [state, formAction] = useFormState(newGroup, { errors: {} });

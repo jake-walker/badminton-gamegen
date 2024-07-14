@@ -1,11 +1,11 @@
 "use server";
 
+import { Alert, Box, Button, Card, CardActions, CardContent, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
+import Grid from "@mui/material/Unstable_Grid2";
+import { desc, eq } from "drizzle-orm";
+import Link from "next/link";
 import db from "../../../../db/db";
 import { group, match as matchModel, matchPlayer as matchPlayerModel, player as playerModel } from "../../../../db/schema";
-import { desc, eq } from "drizzle-orm";
-import { Alert, Box, Button, Card, CardActions, CardContent, Divider, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
-import Grid from "@mui/material/Unstable_Grid2";
-import Link from "next/link";
 
 interface ViewGroupProps {
   params: {
@@ -60,8 +60,10 @@ function MatchItem({ match, leaderboardId }: { match: MatchWithPlayers, leaderbo
   const teamA = match.matchPlayer.filter((p) => p.side === "teamA").map((p) => p.player?.name || "(?)").join(" and ");
   const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "(?)").join(" and ");
 
+  /* eslint-disable prefer-destructuring */
   let teamAScore: string | number = match.teamAScore;
   let teamBScore: string | number = match.teamBScore;
+  /* eslint-enable prefer-destructuring */
 
   if (match.inexactScore) {
     if (teamAScore === teamBScore) {
@@ -130,7 +132,7 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
             </CardContent>
 
             <List disablePadding sx={{ borderTop: 1, borderColor: "divider" }}>
-              {(data.matches?.length || 0) == 0 ? (
+              {(data.matches?.length || 0) === 0 ? (
                 <ListItem>
                   <ListItemText primary="Nothing yet" />
                 </ListItem>
@@ -149,7 +151,7 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
             </CardContent>
 
             <List disablePadding sx={{ borderTop: 1, borderColor: "divider" }}>
-              {(data.players?.length || 0) == 0 ? (
+              {(data.players?.length || 0) === 0 ? (
                 <ListItem>
                   <ListItemText primary="Nobody yet" />
                 </ListItem>

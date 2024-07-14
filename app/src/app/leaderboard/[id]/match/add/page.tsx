@@ -1,11 +1,11 @@
 "use client";
 
 import { Alert, Autocomplete, Box, Button, Card, CardActions, CardContent, FormControlLabel, FormGroup, List, ListItem, Stack, Switch, TextField, Typography, useMediaQuery } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import Grid from "@mui/material/Unstable_Grid2";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { addMatch, getPlayers } from "./actions";
-import { useTheme } from "@mui/material/styles";
-import { useRouter } from "next/navigation";
 
 type Players = Awaited<ReturnType<typeof getPlayers>>;
 
@@ -21,25 +21,26 @@ interface PlayerItemProps {
   onChange: (newValue: string | null) => void
 }
 
-function PlayerItem(props: PlayerItemProps) {
+function PlayerItem({name, players, onChange}: PlayerItemProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const selectItems = props.players.map((player) => player.name);
+  const selectItems = players.map((player) => player.name);
 
   return (
     <ListItem>
       <Stack direction={isMobile ? "column" : "row"} spacing={isMobile ? 0 : 2} sx={[!isMobile && { "& > .MuiAutocomplete-root": { flexGrow: 1 }, flexGrow: 1, alignItems: "center" }, { width: "100%" }]}>
         <Autocomplete
-          inputValue={props.name === null ? "Anonymous" : props.name}
-          onInputChange={(_, newInputValue) => props.onChange(newInputValue)}
+          inputValue={name === null ? "Anonymous" : name}
+          onInputChange={(_, newInputValue) => onChange(newInputValue)}
           freeSolo
-          disabled={props.name === null}
+          disabled={name === null}
           options={selectItems}
+          // eslint-disable-next-line react/jsx-props-no-spreading
           renderInput={(params) => <TextField {...params} label="Player" />}
         />
         <FormGroup sx={{ pt: isMobile ? 1 : "23px" }}>
-          <FormControlLabel control={<Switch checked={props.name === null} onChange={(_, checked) => props.onChange(checked ? null : "")} />} label="Anonymous?" />
+          <FormControlLabel control={<Switch checked={name === null} onChange={(_, checked) => onChange(checked ? null : "")} />} label="Anonymous?" />
         </FormGroup>
       </Stack>
     </ListItem>
@@ -67,7 +68,7 @@ export default function AddMatchPage({ params }: AddMatchProps) {
   }, [params.id]);
 
   const onPlayerItemChange = (index: number, newValue: string | null, currentState: (string | null)[], setter: React.Dispatch<React.SetStateAction<(string | null)[]>>) => {
-    let items = [...currentState];
+    const items = [...currentState];
     items[index] = newValue;
     setter(items);
   }
@@ -110,10 +111,11 @@ export default function AddMatchPage({ params }: AddMatchProps) {
                 Team A
               </Typography>
 
-              <TextField label="Score" type="number" value={teamAScore} onChange={(e) => setTeamAScore(parseInt(e.target.value))} />
+              <TextField label="Score" type="number" value={teamAScore} onChange={(e) => setTeamAScore(parseInt(e.target.value, 10))} />
             </CardContent>
 
             <List disablePadding sx={{ borderTop: 1, borderColor: "divider" }}>
+              {/* eslint-disable-next-line react/no-array-index-key */}
               {teamA.map((item, i) => <PlayerItem key={i} name={item} onChange={(newValue) => onPlayerItemChange(i, newValue, teamA, setTeamA)} players={players} />)}
             </List>
 
@@ -131,10 +133,11 @@ export default function AddMatchPage({ params }: AddMatchProps) {
                 Team B
               </Typography>
 
-              <TextField label="Score" type="number" value={teamBScore} onChange={(e) => setTeamBScore(parseInt(e.target.value))} />
+              <TextField label="Score" type="number" value={teamBScore} onChange={(e) => setTeamBScore(parseInt(e.target.value, 10))} />
             </CardContent>
 
             <List disablePadding sx={{ borderTop: 1, borderColor: "divider" }}>
+              {/* eslint-disable-next-line react/no-array-index-key */}
               {teamB.map((item, i) => <PlayerItem key={i} name={item} onChange={(newValue) => onPlayerItemChange(i, newValue, teamB, setTeamB)} players={players} />)}
             </List>
 

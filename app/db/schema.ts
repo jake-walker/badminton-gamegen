@@ -19,11 +19,6 @@ export const group = pgTable("group", {
   name: text("name").notNull(),
 });
 
-export const groupRelations = relations(group, ({ many }) => ({
-  players: many(player),
-  matches: many(match),
-}));
-
 export const player = pgTable(
   "player",
   {
@@ -41,11 +36,6 @@ export const player = pgTable(
   }),
 );
 
-export const playerRelations = relations(player, ({ one, many }) => ({
-  group: one(group, { fields: [player.groupId], references: [group.id] }),
-  matchPlayer: many(matchPlayer),
-}));
-
 export const match = pgTable("match", {
   id: uuid("id").primaryKey().defaultRandom(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -59,11 +49,6 @@ export const match = pgTable("match", {
     .references(() => group.id),
   ranked: boolean("ranked").notNull().default(true),
 });
-
-export const matchRelations = relations(match, ({ one, many }) => ({
-  group: one(group, { fields: [match.groupId], references: [group.id] }),
-  matchPlayer: many(matchPlayer),
-}));
 
 export const sideEnum = pgEnum("side", ["teamA", "teamB"]);
 
@@ -79,6 +64,21 @@ export const matchPlayer = pgTable("match_player", {
   oldRank: integer("old_rank"),
   newRank: integer("new_rank"),
 });
+
+export const groupRelations = relations(group, ({ many }) => ({
+  players: many(player),
+  matches: many(match),
+}));
+
+export const playerRelations = relations(player, ({ one, many }) => ({
+  group: one(group, { fields: [player.groupId], references: [group.id] }),
+  matchPlayer: many(matchPlayer),
+}));
+
+export const matchRelations = relations(match, ({ one, many }) => ({
+  group: one(group, { fields: [match.groupId], references: [group.id] }),
+  matchPlayer: many(matchPlayer),
+}));
 
 export const matchPlayerRelations = relations(matchPlayer, ({ one }) => ({
   match: one(match, { fields: [matchPlayer.matchId], references: [match.id] }),

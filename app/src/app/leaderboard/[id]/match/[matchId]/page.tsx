@@ -1,9 +1,9 @@
 "use server";
 
+import { Box, Card, CardContent, Chip, List, ListItem, ListItemText, Typography } from "@mui/material";
 import { eq } from "drizzle-orm";
 import db from "../../../../../../db/db";
 import * as schema from "../../../../../../db/schema";
-import { Box, Card, CardContent, Chip, List, ListItem, ListItemText, Typography } from "@mui/material";
 
 interface ViewMatchProps {
   params: {
@@ -31,6 +31,7 @@ function PlayerItem({ matchPlayer, winningTeam }: { matchPlayer: typeof schema.m
   const win = matchPlayer.side === winningTeam;
   const draw = winningTeam === null;
 
+  // eslint-disable-next-line no-nested-ternary -- In this simple instance, ternary is cleaner than if, else if, arrangement
   const color = draw ? "blue" : (win ? "green" : "red");
 
   const delta = (matchPlayer.newRank || 0) - (matchPlayer.oldRank || 0);
@@ -43,7 +44,7 @@ function PlayerItem({ matchPlayer, winningTeam }: { matchPlayer: typeof schema.m
         secondary={
           matchPlayer.oldRank && matchPlayer.newRank && <>
             {matchPlayer.oldRank} → {matchPlayer.newRank} {` `}
-            <Typography sx={{ display: "inline" }} variant="body2" component={"span"}>({deltaSign}{delta})</Typography>
+            <Typography sx={{ display: "inline" }} variant="body2" component="span">({deltaSign}{delta})</Typography>
           </>
         }
       />
@@ -58,15 +59,21 @@ export default async function ViewMatchPage({ params }: ViewMatchProps) {
     return <p>Not found!</p>;
   }
 
-  const winningTeam = data.teamAScore === data.teamBScore ? null : (data.teamAScore > data.teamBScore ? "teamA" : "teamB");
+let winningTeam: "teamA" | "teamB" | null = null
 
+if (data.teamAScore !== data.teamBScore) {
+  winningTeam = data.teamAScore > data.teamBScore ? "teamA" : "teamB"
+}
+
+  /* eslint-disable prefer-destructuring */
   let teamAScore: string | number = data.teamAScore;
   let teamBScore: string | number = data.teamBScore;
+  /* eslint-enable prefer-destructuring */
 
   if (data.inexactScore) {
     if (teamAScore === teamBScore) {
       teamAScore = "Draw";
-      teamBScore = "Draw"
+      teamBScore = "Draw";
     } else if (teamAScore > teamBScore) {
       teamAScore = "Win";
       teamBScore = "Lose";
