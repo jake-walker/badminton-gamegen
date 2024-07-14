@@ -30,4 +30,13 @@ module.exports = {
     // Adding default props in typescript in the way this linter wants is not idiomatic
     "react/require-default-props": 0,
   },
+  overrides: [
+    {
+      // API Route files have a predefined signature, which is not default export
+      files: ["src/app/api/**/route.ts"],
+      rules: {
+        "import/prefer-default-export": 0,
+      },
+    },
+  ],
 };

@@ -14,7 +14,7 @@ const newMatchSchema = z.object({
   ranked: z.boolean().default(true),
 });
 
-export default async function POST(
+export async function POST(
   request: Request,
   { params }: { params: { id: string } },
 ) {

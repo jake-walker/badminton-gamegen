@@ -14,7 +14,7 @@ const schema = z
     message: "There are not enough players defined.",
   });
 
-export default async function POST(request: Request) {
+export async function POST(request: Request) {
   const { data, error, success } = schema.safeParse(await request.json());
 
   if (!success) {

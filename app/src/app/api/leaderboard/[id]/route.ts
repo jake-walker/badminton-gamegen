@@ -2,7 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import db from "../../../../../db/db";
 import * as schema from "../../../../../db/schema";
 
-export default async function GET(
+export async function GET(
   request: Request,
   { params }: { params: { id: string } },
 ) {
