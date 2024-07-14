@@ -33,8 +33,19 @@
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
     "drizzle-kit": "^0.22.7",
-    "eslint": "^8",
     "eslint-config-next": "14.1.4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "@typescript-eslint/eslint-plugin": "^7.15.0",
+    "@typescript-eslint/parser": "^7.15.0",
+    "bun-types": "^1.1.20",
+    "eslint": "8.57.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
+    "eslint-plugin-deprecation": "^3.0.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-unused-imports": "^4.0.0",
+    "prettier": "^3.3.2"
   }
 }
