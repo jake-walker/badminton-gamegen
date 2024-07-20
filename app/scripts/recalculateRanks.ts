@@ -1,8 +1,7 @@
 import { and, asc, eq, SQL } from "drizzle-orm";
-// eslint-disable-next-line import/no-unresolved, import/extensions
-import { updateEloRankings } from "@/app/leaderboard/leaderboard";
 import db from "../db/db";
 import * as schema from "../db/schema";
+import { updateEloRankings } from "../src/app/leaderboard/leaderboard";
 
 export default async function recalculateRanks(where?: SQL) {
   // reset all ranks to the default
