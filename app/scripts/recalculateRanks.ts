@@ -21,7 +21,9 @@ export default async function recalculateRanks(where?: SQL) {
     },
   });
 
-  matches.forEach(async (match) => {
+  for (let i = 0; i < matches.length; i += 1) {
+    const match = matches[i];
+
     console.log(
       `Calculating ranks for ${match.id} (${match.date.toLocaleString()})...`,
     );
@@ -36,8 +38,9 @@ export default async function recalculateRanks(where?: SQL) {
       .filter((mp) => mp.side !== winningTeam)
       .map((mp) => mp.playerId);
 
+    // eslint-disable-next-line no-await-in-loop -- Async wait is desired behaviour
     await updateEloRankings(match.id, winnerPlayerIds, losingPlayerIds);
-  });
+  }
 }
 
 recalculateRanks();
