@@ -66,8 +66,8 @@ if (data.teamAScore !== data.teamBScore) {
 }
 
   const {teamAScore, teamBScore} = data;
-  let teamAResult:string = ""
-  let teamBResult: string= ""
+  let teamAResult:string = teamAScore.toString()
+  let teamBResult: string= teamBScore.toString()
 
   if (data.inexactScore) {
     if (teamAScore === teamBScore) {

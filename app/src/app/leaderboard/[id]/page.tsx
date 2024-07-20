@@ -61,8 +61,8 @@ function MatchItem({ match, leaderboardId }: { match: MatchWithPlayers, leaderbo
   const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "(?)").join(" and ");
 
   const {teamAScore, teamBScore} = match;
-  let teamAResult:string = ""
-  let teamBResult: string= ""
+  let teamAResult:string = teamAScore.toString()
+  let teamBResult: string= teamBScore.toString()
 
   if (match.inexactScore) {
     if (teamAScore === teamBScore) {
