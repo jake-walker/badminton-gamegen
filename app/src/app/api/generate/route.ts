@@ -14,6 +14,7 @@ const schema = z
     message: "There are not enough players defined.",
   });
 
+// eslint-disable-next-line import/prefer-default-export -- must be this syntax
 export async function POST(request: Request) {
   const { data, error, success } = schema.safeParse(await request.json());
 

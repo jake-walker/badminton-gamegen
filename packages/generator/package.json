@@ -15,6 +15,7 @@
     "uuid": "^10.0.0"
   },
   "scripts": {
-    "benchmark": "bun run ./src/benchmark.ts"
+    "benchmark": "bun run ./src/benchmark.ts",
+    "lint": "eslint ./src/ --ext .js,.jsx,.ts,.tsx -c ../../.eslintrc.cjs"
   }
 }

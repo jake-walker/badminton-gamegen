@@ -2,6 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import db from "../../../../../db/db";
 import * as schema from "../../../../../db/schema";
 
+// eslint-disable-next-line import/prefer-default-export -- must be this syntax
 export async function GET(
   request: Request,
   { params }: { params: { id: string } },

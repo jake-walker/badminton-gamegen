@@ -14,6 +14,7 @@ const newMatchSchema = z.object({
   ranked: z.boolean().default(true),
 });
 
+// eslint-disable-next-line import/prefer-default-export -- must be this syntax
 export async function POST(
   request: Request,
   { params }: { params: { id: string } },
