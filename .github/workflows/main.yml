@@ -10,9 +10,21 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
-      - name: Install dependencies
-        run: bun install
-      - name: Lint
-        run: bun run lint
-      - name: Test
-        run: bun test
+      - name: Lint App
+        run: |
+          cd ./app 
+          bun install
+          bun run lint
+      - name: Test App
+        run: |
+          cd ./app 
+          bun run test
+      - name: Lint Generator
+        run: |
+          cd ./packages/generator 
+          bun install
+          bun run lint
+      - name: Test Generator
+        run: |
+          cd ./packages/generator 
+          bun run test
