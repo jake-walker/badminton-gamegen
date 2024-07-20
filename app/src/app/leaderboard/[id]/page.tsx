@@ -60,21 +60,20 @@ function MatchItem({ match, leaderboardId }: { match: MatchWithPlayers, leaderbo
   const teamA = match.matchPlayer.filter((p) => p.side === "teamA").map((p) => p.player?.name || "(?)").join(" and ");
   const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "(?)").join(" and ");
 
-  /* eslint-disable prefer-destructuring */
-  let teamAScore: string | number = match.teamAScore;
-  let teamBScore: string | number = match.teamBScore;
-  /* eslint-enable prefer-destructuring */
+  const {teamAScore, teamBScore} = match;
+  let teamAResult:string = ""
+  let teamBResult: string= ""
 
   if (match.inexactScore) {
     if (teamAScore === teamBScore) {
-      teamAScore = "Draw";
-      teamBScore = "Draw"
+      teamAResult = "Draw";
+      teamBResult = "Draw"
     } else if (teamAScore > teamBScore) {
-      teamAScore = "Win";
-      teamBScore = "Lose";
+      teamAResult = "Win";
+      teamBResult = "Lose";
     } else {
-      teamAScore = "Lose";
-      teamBScore = "Win";
+      teamAResult = "Lose";
+      teamBResult = "Win";
     }
   }
 
@@ -84,7 +83,7 @@ function MatchItem({ match, leaderboardId }: { match: MatchWithPlayers, leaderbo
         primary={`${teamA} vs. ${teamB}`}
         secondary={
           <span>
-            {teamAScore} - {teamBScore}
+            {teamAResult} - {teamBResult}
             &ensp;&bull;&ensp;
             {match.date.toLocaleString()}
             {!match.ranked && <span>&ensp;&bull;&ensp;(unranked)</span>}

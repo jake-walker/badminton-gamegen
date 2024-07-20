@@ -65,21 +65,20 @@ if (data.teamAScore !== data.teamBScore) {
   winningTeam = data.teamAScore > data.teamBScore ? "teamA" : "teamB"
 }
 
-  /* eslint-disable prefer-destructuring */
-  let teamAScore: string | number = data.teamAScore;
-  let teamBScore: string | number = data.teamBScore;
-  /* eslint-enable prefer-destructuring */
+  const {teamAScore, teamBScore} = data;
+  let teamAResult:string = ""
+  let teamBResult: string= ""
 
   if (data.inexactScore) {
     if (teamAScore === teamBScore) {
-      teamAScore = "Draw";
-      teamBScore = "Draw";
+      teamAResult = "Draw";
+      teamBResult = "Draw";
     } else if (teamAScore > teamBScore) {
-      teamAScore = "Win";
-      teamBScore = "Lose";
+      teamAResult = "Win";
+      teamBResult = "Lose";
     } else {
-      teamAScore = "Lose";
-      teamBScore = "Win";
+      teamAResult = "Lose";
+      teamBResult = "Win";
     }
   }
 
@@ -98,7 +97,7 @@ if (data.teamAScore !== data.teamBScore) {
             <Typography sx={{ mt: 1.5 }}>
               {data.date.toLocaleString()}
               &ensp;&bull;&ensp;
-              {teamAScore} - {teamBScore}
+              {teamAResult} - {teamBResult}
             </Typography>
           </CardContent>
         </Card>
