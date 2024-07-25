@@ -8,14 +8,17 @@ function createSession(): generator.Session {
     matches: [],
     players: ["a", "b", "c", "d", "e", "f"].map((id) => ({
       id,
-      name: id.toUpperCase()
-    }))
-  }
+      name: id.toUpperCase(),
+    })),
+  };
 }
 
-function addGames(session: generator.Session, gameCount: number): generator.Session {
-  for (let i = 0; i < gameCount; i++) {
-    const game = generator.nextGame(session);
+function addGames(
+  session: generator.Session,
+  gameCount: number,
+): generator.Session {
+  for (let i = 0; i < gameCount; i += 1) {
+    const game = generator.nextGame(session, 1);
 
     if (game !== null) {
       session.matches.push(game);
@@ -25,13 +28,13 @@ function addGames(session: generator.Session, gameCount: number): generator.Sess
   return session;
 }
 
-for (const gameCount of TEST_GAMES) {
+TEST_GAMES.forEach((gameCount) => {
   let gameCountMin: number | null = null;
   let gameCountMax: number | null = null;
   let pairCountMin: number | null = null;
   let pairCountMax: number | null = null;
 
-  for (let i = 0; i < TRIALS; i++) {
+  for (let i = 0; i < TRIALS; i += 1) {
     const session = createSession();
     addGames(session, gameCount);
 
@@ -60,15 +63,19 @@ for (const gameCount of TEST_GAMES) {
     }
   }
 
-  console.log(`With ${gameCount} matches, each player will play between ${gameCountMin} and ${gameCountMax} matches (+/- ${gameCountMax! - gameCountMin!})`);
-  console.log(`  and will play with each other player between ${pairCountMin} and ${pairCountMax} times (+/- ${pairCountMax! - pairCountMin!})`)
-}
+  console.log(
+    `With ${gameCount} matches, each player will play between ${gameCountMin} and ${gameCountMax} matches (+/- ${gameCountMax! - gameCountMin!})`,
+  );
+  console.log(
+    `  and will play with each other player between ${pairCountMin} and ${pairCountMax} times (+/- ${pairCountMax! - pairCountMin!})`,
+  );
+});
 
 const session = createSession();
 addGames(session, 20);
 
-for (const game of session.matches) {
+session.matches.forEach((game) => {
   console.log(generator.formatMatch(game));
-}
+});
 
-console.log(generator.pairGameCounts(session))
+console.log(generator.pairGameCounts(session));

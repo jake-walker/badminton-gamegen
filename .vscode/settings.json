@@ -1,0 +1,22 @@
+{
+    "eslint.codeActionsOnSave.mode": "all",
+    "eslint.enable": true,
+    "eslint.run": "onSave",
+    "typescript.format.insertSpaceAfterSemicolonInForStatements": true,
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+    },
+    "typescript.updateImportsOnFileMove.enabled": "always",
+  "eslint.validate": ["javascript", "typescript"],
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "typescript.preferences.quoteStyle": "double",
+  "typescript.format.semicolons": "insert",
+  "eslint.lintTask.enable": true,
+  "eslint.lintTask.options": "-c .eslintrc.cjs --ext .ts ."
+}

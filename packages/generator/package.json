@@ -6,7 +6,8 @@
     ".": "./src/main.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "eslint": "8.57.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -15,6 +16,7 @@
     "uuid": "^10.0.0"
   },
   "scripts": {
-    "benchmark": "bun run ./src/benchmark.ts"
+    "benchmark": "bun run ./src/benchmark.ts",
+    "lint": "eslint ./src/ --ext .js,.jsx,.ts,.tsx -c ../../.eslintrc.cjs"
   }
 }

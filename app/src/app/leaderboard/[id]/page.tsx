@@ -1,16 +1,33 @@
 "use server";
 
-import db from "../../../../db/db";
-import { group, match as matchModel, matchPlayer as matchPlayerModel, player as playerModel } from "../../../../db/schema";
-import { desc, eq } from "drizzle-orm";
-import { Alert, Box, Button, Card, CardActions, CardContent, Divider, List, ListItem, ListItemButton, ListItemText, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
+import { desc, eq } from "drizzle-orm";
 import Link from "next/link";
+import db from "../../../../db/db";
+import {
+  group,
+  match as matchModel,
+  matchPlayer as matchPlayerModel,
+  player as playerModel,
+} from "../../../../db/schema";
 
 interface ViewGroupProps {
   params: {
-    id: string
-  }
+    id: string;
+  };
 }
 
 function isNew(date?: Date): boolean {
@@ -29,7 +46,7 @@ async function getData(id: string) {
     where: eq(group.id, id),
     with: {
       players: {
-        orderBy: desc(playerModel.rank)
+        orderBy: desc(playerModel.rank),
       },
       matches: {
         limit: 6,
@@ -38,51 +55,69 @@ async function getData(id: string) {
           matchPlayer: {
             with: {
               player: {
-                columns: { name: true }
-              }
-            }
-          }
-        }
-      }
-    }
+                columns: { name: true },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   return {
-    ...res
+    ...res,
   };
 }
 
 type MatchWithPlayers = typeof matchModel.$inferSelect & {
-  matchPlayer: (typeof matchPlayerModel.$inferSelect & { player: { name: string } | null })[]
-}
+  matchPlayer: (typeof matchPlayerModel.$inferSelect & {
+    player: { name: string } | null;
+  })[];
+};
 
-function MatchItem({ match, leaderboardId }: { match: MatchWithPlayers, leaderboardId: string }) {
-  const teamA = match.matchPlayer.filter((p) => p.side === "teamA").map((p) => p.player?.name || "(?)").join(" and ");
-  const teamB = match.matchPlayer.filter((p) => p.side === "teamB").map((p) => p.player?.name || "(?)").join(" and ");
+function MatchItem({
+  match,
+  leaderboardId,
+}: {
+  match: MatchWithPlayers;
+  leaderboardId: string;
+}) {
+  const teamA = match.matchPlayer
+    .filter((p) => p.side === "teamA")
+    .map((p) => p.player?.name || "(?)")
+    .join(" and ");
+  const teamB = match.matchPlayer
+    .filter((p) => p.side === "teamB")
+    .map((p) => p.player?.name || "(?)")
+    .join(" and ");
 
-  let teamAScore: string | number = match.teamAScore;
-  let teamBScore: string | number = match.teamBScore;
+  const { teamAScore, teamBScore } = match;
+  let teamAResult: string = teamAScore.toString();
+  let teamBResult: string = teamBScore.toString();
 
   if (match.inexactScore) {
     if (teamAScore === teamBScore) {
-      teamAScore = "Draw";
-      teamBScore = "Draw"
+      teamAResult = "Draw";
+      teamBResult = "Draw";
     } else if (teamAScore > teamBScore) {
-      teamAScore = "Win";
-      teamBScore = "Lose";
+      teamAResult = "Win";
+      teamBResult = "Lose";
     } else {
-      teamAScore = "Lose";
-      teamBScore = "Win";
+      teamAResult = "Lose";
+      teamBResult = "Win";
     }
   }
 
   return (
-    <ListItemButton LinkComponent={Link} href={`/leaderboard/${leaderboardId}/match/${match.id}`}>
+    <ListItemButton
+      LinkComponent={Link}
+      href={`/leaderboard/${leaderboardId}/match/${match.id}`}
+    >
       <ListItemText
         primary={`${teamA} vs. ${teamB}`}
         secondary={
           <span>
-            {teamAScore} - {teamBScore}
+            {teamAResult} - {teamBResult}
             &ensp;&bull;&ensp;
             {match.date.toLocaleString()}
             {!match.ranked && <span>&ensp;&bull;&ensp;(unranked)</span>}
@@ -104,7 +139,8 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
     <Box sx={{ p: 2 }}>
       {isNew(data.createdAt) && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          Please make sure to save the link to this group to ensure it doesn&apos;t get lost.
+          Please make sure to save the link to this group to ensure it
+          doesn&apos;t get lost.
         </Alert>
       )}
 
@@ -112,30 +148,38 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
         <Grid xs={12}>
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="h5">
-                {data.name}
-              </Typography>
+              <Typography variant="h5">{data.name}</Typography>
             </CardContent>
             <CardActions>
-              <Button size="small" LinkComponent={Link} href={`/leaderboard/${params.id}/match/add`}>Record Match</Button>
+              <Button
+                size="small"
+                LinkComponent={Link}
+                href={`/leaderboard/${params.id}/match/add`}
+              >
+                Record Match
+              </Button>
             </CardActions>
           </Card>
         </Grid>
         <Grid xs={12} md={6}>
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="h5">
-                Recent Matches
-              </Typography>
+              <Typography variant="h5">Recent Matches</Typography>
             </CardContent>
 
             <List disablePadding sx={{ borderTop: 1, borderColor: "divider" }}>
-              {(data.matches?.length || 0) == 0 ? (
+              {(data.matches?.length || 0) === 0 ? (
                 <ListItem>
                   <ListItemText primary="Nothing yet" />
                 </ListItem>
               ) : (
-                data.matches?.map((match) => <MatchItem key={match.id} match={match} leaderboardId={params.id} />)
+                data.matches?.map((match) => (
+                  <MatchItem
+                    key={match.id}
+                    match={match}
+                    leaderboardId={params.id}
+                  />
+                ))
               )}
             </List>
           </Card>
@@ -143,20 +187,21 @@ export default async function ViewGroup({ params }: ViewGroupProps) {
         <Grid xs={12} md={6}>
           <Card variant="outlined">
             <CardContent>
-              <Typography variant="h5">
-                Members
-              </Typography>
+              <Typography variant="h5">Members</Typography>
             </CardContent>
 
             <List disablePadding sx={{ borderTop: 1, borderColor: "divider" }}>
-              {(data.players?.length || 0) == 0 ? (
+              {(data.players?.length || 0) === 0 ? (
                 <ListItem>
                   <ListItemText primary="Nobody yet" />
                 </ListItem>
               ) : (
                 data.players?.map((player, i) => (
                   <ListItem key={player.id}>
-                    <ListItemText primary={`${i+1}. ${player.name}`} secondary={`Rating: ${player.rank}`} />
+                    <ListItemText
+                      primary={`${i + 1}. ${player.name}`}
+                      secondary={`Rating: ${player.rank}`}
+                    />
                   </ListItem>
                 ))
               )}

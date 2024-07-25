@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-import { CssBaseline } from "@mui/material";
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
+// eslint-disable-next-line import/order, import/no-unresolved, import/extensions
 import AppShell from "@/components/AppShell";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import { CssBaseline } from "@mui/material";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
 import { Provider as JotaiProvider } from "jotai";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children
+  children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
@@ -24,9 +25,7 @@ export default function RootLayout({
         <JotaiProvider>
           <AppRouterCacheProvider>
             <CssBaseline />
-            <AppShell>
-              {children}
-            </AppShell>
+            <AppShell>{children}</AppShell>
           </AppRouterCacheProvider>
         </JotaiProvider>
       </body>

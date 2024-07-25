@@ -1,0 +1,22 @@
+name: Main
+on:
+  push:
+  pull_request:
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+      - name: Lint App
+        run: |
+          cd ./app 
+          bun install
+          bun run lint
+      - name: Lint Generator
+        run: |
+          cd ./packages/generator 
+          bun install
+          bun run lint

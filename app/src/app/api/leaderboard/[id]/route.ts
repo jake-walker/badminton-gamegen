@@ -2,7 +2,11 @@ import { desc, eq } from "drizzle-orm";
 import db from "../../../../../db/db";
 import * as schema from "../../../../../db/schema";
 
-export async function GET(request: Request, { params }: { params: { id: string }}) {
+// eslint-disable-next-line import/prefer-default-export -- must be this syntax
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } },
+) {
   const res = await db.query.group.findFirst({
     where: eq(schema.group.id, params.id),
     with: {
@@ -12,15 +16,15 @@ export async function GET(request: Request, { params }: { params: { id: string }
         with: {
           matchPlayer: {
             with: {
-              player: true
-            }
-          }
-        }
+              player: true,
+            },
+          },
+        },
       },
       players: {
-        orderBy: desc(schema.player.rank)
-      }
-    }
+        orderBy: desc(schema.player.rank),
+      },
+    },
   });
 
   if (!res) {
