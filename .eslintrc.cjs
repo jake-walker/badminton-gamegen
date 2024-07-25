@@ -29,6 +29,20 @@ module.exports = {
   rules: {
     // Adding default props in typescript in the way this linter wants is not idiomatic
     "react/require-default-props": 0,
+
+
+      // Restrict MUI imports to help avoid "styled-defaults is not a function" error
+      // With the exception of Unstable_Grid2 as it is not importable directly from @mui/material
+    "no-restricted-imports": [
+      "error", {
+        patterns: [
+          {
+            group: ["@mui/material/*", "@mui/system", "!@mui/material/Unstable_Grid2"],
+            "message": "Only use `import { thing } from @mui/material` style imports"
+          }
+        ]
+      }
+    ]
   },
   overrides: [
     {

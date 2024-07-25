@@ -13,7 +13,13 @@ export default function CreateGroup() {
     <Box sx={{ mx: 2 }}>
       <form action={formAction}>
         <Stack gap={2}>
-          <TextField label="Name" name="name" variant="outlined" error={(state.errors?.name?.length || 0) > 0} helperText={state.errors?.name?.join(". ") || ""} />
+          <TextField
+            label="Name"
+            name="name"
+            variant="outlined"
+            error={(state.errors?.name?.length || 0) > 0}
+            helperText={state.errors?.name?.join(". ") || ""}
+          />
           <SubmitButton text="Create" />
         </Stack>
       </form>

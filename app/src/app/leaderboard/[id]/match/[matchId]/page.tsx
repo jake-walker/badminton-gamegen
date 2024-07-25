@@ -1,15 +1,24 @@
 "use server";
 
-import { Box, Card, CardContent, Chip, List, ListItem, ListItemText, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from "@mui/material";
 import { eq } from "drizzle-orm";
 import db from "../../../../../../db/db";
 import * as schema from "../../../../../../db/schema";
 
 interface ViewMatchProps {
   params: {
-    id: string,
-    matchId: string
-  }
+    id: string;
+    matchId: string;
+  };
 }
 
 async function getData(id: string) {
@@ -18,21 +27,29 @@ async function getData(id: string) {
     with: {
       matchPlayer: {
         with: {
-          player: true
-        }
-      }
-    }
+          player: true,
+        },
+      },
+    },
   });
 
   return res;
 }
 
-function PlayerItem({ matchPlayer, winningTeam }: { matchPlayer: typeof schema.matchPlayer.$inferSelect & { player: typeof schema.player.$inferSelect | null }, winningTeam: "teamA" | "teamB" | null }) {
+function PlayerItem({
+  matchPlayer,
+  winningTeam,
+}: {
+  matchPlayer: typeof schema.matchPlayer.$inferSelect & {
+    player: typeof schema.player.$inferSelect | null;
+  };
+  winningTeam: "teamA" | "teamB" | null;
+}) {
   const win = matchPlayer.side === winningTeam;
   const draw = winningTeam === null;
 
   // eslint-disable-next-line no-nested-ternary -- In this simple instance, ternary is cleaner than if, else if, arrangement
-  const color = draw ? "blue" : (win ? "green" : "red");
+  const color = draw ? "blue" : win ? "green" : "red";
 
   const delta = (matchPlayer.newRank || 0) - (matchPlayer.oldRank || 0);
   const deltaSign = delta > 0 ? "+" : "";
@@ -40,16 +57,30 @@ function PlayerItem({ matchPlayer, winningTeam }: { matchPlayer: typeof schema.m
   return (
     <ListItem>
       <ListItemText
-        primary={<Typography color={color}>{matchPlayer.player?.name || "Anonymous"}</Typography>}
+        primary={
+          <Typography color={color}>
+            {matchPlayer.player?.name || "Anonymous"}
+          </Typography>
+        }
         secondary={
-          matchPlayer.oldRank && matchPlayer.newRank && <>
-            {matchPlayer.oldRank} → {matchPlayer.newRank} {` `}
-            <Typography sx={{ display: "inline" }} variant="body2" component="span">({deltaSign}{delta})</Typography>
-          </>
+          matchPlayer.oldRank &&
+          matchPlayer.newRank && (
+            <>
+              {matchPlayer.oldRank} → {matchPlayer.newRank} {` `}
+              <Typography
+                sx={{ display: "inline" }}
+                variant="body2"
+                component="span"
+              >
+                ({deltaSign}
+                {delta})
+              </Typography>
+            </>
+          )
         }
       />
     </ListItem>
-  )
+  );
 }
 
 export default async function ViewMatchPage({ params }: ViewMatchProps) {
@@ -59,15 +90,15 @@ export default async function ViewMatchPage({ params }: ViewMatchProps) {
     return <p>Not found!</p>;
   }
 
-let winningTeam: "teamA" | "teamB" | null = null
+  let winningTeam: "teamA" | "teamB" | null = null;
 
-if (data.teamAScore !== data.teamBScore) {
-  winningTeam = data.teamAScore > data.teamBScore ? "teamA" : "teamB"
-}
+  if (data.teamAScore !== data.teamBScore) {
+    winningTeam = data.teamAScore > data.teamBScore ? "teamA" : "teamB";
+  }
 
-  const {teamAScore, teamBScore} = data;
-  let teamAResult:string = teamAScore.toString()
-  let teamBResult: string= teamBScore.toString()
+  const { teamAScore, teamBScore } = data;
+  let teamAResult: string = teamAScore.toString();
+  let teamBResult: string = teamBScore.toString();
 
   if (data.inexactScore) {
     if (teamAScore === teamBScore) {
@@ -91,8 +122,17 @@ if (data.teamAScore !== data.teamBScore) {
         <Card variant="outlined">
           <CardContent>
             <Typography variant="h5">
-              {data.ranked && (<><Chip label="Ranked" color="primary" />&ensp;</>)}
-              {[teamA, teamB].map((team) => team.map((p) => p.player?.name || "Anonymous").join(" and ")).join(" vs. ")}
+              {data.ranked && (
+                <>
+                  <Chip label="Ranked" color="primary" />
+                  &ensp;
+                </>
+              )}
+              {[teamA, teamB]
+                .map((team) =>
+                  team.map((p) => p.player?.name || "Anonymous").join(" and "),
+                )
+                .join(" vs. ")}
             </Typography>
             <Typography sx={{ mt: 1.5 }}>
               {data.date.toLocaleString()}
@@ -104,8 +144,10 @@ if (data.teamAScore !== data.teamBScore) {
       </Box>
 
       <List disablePadding>
-        {data.matchPlayer.map((mp) => <PlayerItem key={mp.id} winningTeam={winningTeam} matchPlayer={mp} /> )}
+        {data.matchPlayer.map((mp) => (
+          <PlayerItem key={mp.id} winningTeam={winningTeam} matchPlayer={mp} />
+        ))}
       </List>
     </>
-  )
+  );
 }
