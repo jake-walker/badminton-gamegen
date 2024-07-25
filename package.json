@@ -4,7 +4,6 @@
   "version": "2.0.0",
   "workspaces": ["packages/*", "app"],
   "scripts": {
-    "dev": "cd ./app/ && bun run dev",
-    "lint": "cd ./app/ && bun run lint && cd ../packages/generator && bun run lint"
+    "dev": "cd ./app/ && bun run dev"
   }
 }
