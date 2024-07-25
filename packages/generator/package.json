@@ -6,7 +6,8 @@
     ".": "./src/main.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "eslint": "8.57.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
