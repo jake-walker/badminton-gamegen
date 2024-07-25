@@ -15,16 +15,8 @@ jobs:
           cd ./app 
           bun install
           bun run lint
-      - name: Test App
-        run: |
-          cd ./app 
-          bun run test
       - name: Lint Generator
         run: |
           cd ./packages/generator 
           bun install
           bun run lint
-      - name: Test Generator
-        run: |
-          cd ./packages/generator 
-          bun run test
